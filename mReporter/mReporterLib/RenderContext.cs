@@ -6,7 +6,7 @@ using System.Text;
 namespace mReporterLib
 {
 
-    class RenderContext
+    public class RenderContext
     {
         public Report Report { get; private set; }
 
@@ -29,7 +29,6 @@ namespace mReporterLib
             }
         }
 
-
         internal OutputLine AddToOutput(ReportItem item, List<string> data)
         {
             var oLine=new OutputLine(_currentOutputLine, item, data);
@@ -37,10 +36,7 @@ namespace mReporterLib
             return oLine;
         }
 
-        /// <summary>
-        /// Makes last used output line as current output parent
-        /// </summary>
-        public void SetOutputParent(OutputLine newOutputParent)
+        internal void SetOutputParent(OutputLine newOutputParent)
         {
             _currentOutputLine = newOutputParent;
         }

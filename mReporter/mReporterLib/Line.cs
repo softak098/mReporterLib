@@ -6,9 +6,8 @@ using System.Text;
 namespace mReporterLib
 {
 
-    enum Align { Left, Right, Center, Justify }
 
-    class GetDataResult
+    public class GetDataResult
     {
         public string Value { get; set; }
         public Align Alignment { get; set; }
@@ -23,15 +22,16 @@ namespace mReporterLib
 
     }
 
-    class GetDataArgs
+    public class GetDataArgs
     {
         public int Index { get; set; }
         public object Data { get; set; }
+        public GetDataResult Result { get; set; }
     }
 
-    delegate GetDataResult GetDataHandler(GetDataArgs e);
+    public delegate void GetDataHandler(GetDataArgs e);
 
-    class Line : ReportItem
+    public class Line : ReportItem
     {
         private LineTemplate _lineTemplate;
 
@@ -67,15 +67,21 @@ namespace mReporterLib
 
         protected virtual GetDataResult GetDataResultInternal(int index)
         {
-            GetDataResult result = null;
-            if (this.GetData != null) result= this.GetData(new GetDataArgs { Index = index, Data = Data });
+            if (this.GetData != null) {
+                GetDataArgs args = new GetDataArgs {
+                    Index = index,
+                    Data = Data,
+                    Result = new GetDataResult()
+                };
+                this.GetData(args);
+                return args.Result;
+            }
 
-            return result;
+            return null;
         }
 
         public override OutputLine Render(RenderContext context)
         {
-            base.Render(context);
             if (_lineTemplate == null) return null;
 
             GetDataResult[] r = new GetDataResult[_lineTemplate.ValueCount];

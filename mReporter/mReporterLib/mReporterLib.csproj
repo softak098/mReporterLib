@@ -43,6 +43,7 @@
     <Compile Include="RenderContext.cs" />
     <Compile Include="Report.cs" />
     <Compile Include="ReportItem.cs" />
+    <Compile Include="ReportItemAttributes.cs" />
     <Compile Include="ReportItemType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

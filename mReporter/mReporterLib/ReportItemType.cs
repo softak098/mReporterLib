@@ -5,7 +5,7 @@ using System.Text;
 
 namespace mReporterLib
 {
-    enum ReportItemType
+    public enum ReportItemType
     {
         ReportHeader, PageHeader, Header, Detail, Footer, PageFooter, ReportFooter, Group
     }

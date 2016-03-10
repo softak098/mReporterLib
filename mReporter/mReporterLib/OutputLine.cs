@@ -5,7 +5,7 @@ using System.Text;
 
 namespace mReporterLib
 {
-    class OutputLine
+    public class OutputLine
     {
         List<string> _data;
         internal List<string> GeneratedLines

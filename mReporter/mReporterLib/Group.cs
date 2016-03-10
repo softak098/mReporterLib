@@ -6,14 +6,12 @@ using System.Text;
 namespace mReporterLib
 {
 
-    class GetDataSourceArgs { }
-
-    delegate IEnumerable<TDataSource> GetDataSourceHandler<TDataSource>(GetDataSourceArgs e) where TDataSource : class;
+    public delegate IEnumerable<TDataSource> GetDataSourceHandler<TDataSource>() where TDataSource : class;
 
     /// <summary>
     /// Rpresents functional group of header, data and footer with associated data source. It can be nested in other group also.
     /// </summary>
-    class Group<TDataSource> : ReportItem
+    public class Group<TDataSource> : ReportItem
         where TDataSource : class
     {
         public new IEnumerable<TDataSource> DataSource { get; set; }
@@ -29,13 +27,8 @@ namespace mReporterLib
 
         public override OutputLine Render(RenderContext context)
         {
-            base.Render(context);
-
-
             if (this.GetDataSource != null) {
-                GetDataSourceArgs args = new GetDataSourceArgs();
-                this.DataSource = this.GetDataSource(args);
-
+                this.DataSource = this.GetDataSource();
             }
 
             ForAllReportItems((item, data) => {

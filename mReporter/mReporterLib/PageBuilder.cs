@@ -5,7 +5,7 @@ using System.Text;
 
 namespace mReporterLib
 {
-    class PageBuilder
+    public class PageBuilder
     {
         const string PAGE_NUMBER_PLACEHOLDER = "$P";
         const string TOTAL_PAGE_NUMBER_PLACEHOLDER = "$T";
@@ -53,6 +53,12 @@ namespace mReporterLib
         {
             int linesToBuild = lineObj.GeneratedLines.Count;
             if (linesToBuild == 0) return; // nothing to generate
+
+            if (PageHeight == 0) {
+                // in infinite report (for POS) there is no need to check paging
+                AddToOutput(lineObj.GeneratedLines, 0);
+                return;
+            }
 
             // check, if there is a page footer
             OutputLine footerLine = GetFooterLine();

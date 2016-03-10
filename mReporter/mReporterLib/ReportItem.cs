@@ -5,7 +5,7 @@ using System.Text;
 
 namespace mReporterLib
 {
-    class ReportItem
+    public abstract class ReportItem
     {
         protected ReportItem Parent { get; private set; }
 
@@ -14,7 +14,6 @@ namespace mReporterLib
             get; private set;
         }
 
-        // internal list of report items
         internal List<ReportItem> Items
         {
             get; private set;
@@ -24,23 +23,15 @@ namespace mReporterLib
 
         public object Data
         {
-            get; set;
+            get; private set;
         }
-
-        /// <summary>
-        /// Specifies if item was rendered - at least once
-        /// </summary>
-        public bool Rendered { get; set; }
 
         public ReportItem(ReportItemType type)
         {
             this.Type = type;
         }
 
-        public virtual OutputLine Render(RenderContext context) {
-            this.Rendered = true;
-            return null;
-        }
+        public abstract OutputLine Render(RenderContext context);
 
         public void AddItem(ReportItem item)
         {

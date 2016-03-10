@@ -5,23 +5,19 @@ using System.Text;
 
 namespace mReporterLib
 {
-    class Report
+    public class Report
     {
         List<ReportItem> _items;
         internal List<ReportItem> Items { get { return _items; } }
         /// <summary>
-        /// Specifies infinite report without paging, such output to receipt printer
-        /// </summary>
-        public bool InfiniteReport { get; set; }
-        /// <summary>
-        /// Height of page in lines
+        /// Height of page in lines, set to 0 to disable paging
         /// </summary>
         public int PageHeight { get; set; }
 
         public Report()
         {
             this._items = new List<ReportItem>();
-            InfiniteReport = false;
+            PageHeight = 66;
         }
 
 
@@ -42,23 +38,17 @@ namespace mReporterLib
         {
             PageBuilder builder = new PageBuilder(this, this.PageHeight);
 
-            // we are on first page - add page header
-            var header = GetPageHeader();
-            if (header != null) {
-                RenderContext headerContext = new RenderContext(this);
-                header.Render(headerContext);
-                builder.Build(headerContext);
+            if (PageHeight > 0) {
+                // we are on first page - add page header
+                var header = GetPageHeader();
+                if (header != null) {
+                    RenderContext headerContext = new RenderContext(this);
+                    header.Render(headerContext);
+                    builder.Build(headerContext);
+                }
             }
 
             builder.Build(renderContext);
-
-            /*
-            foreach (var item in renderContext) {
-                if (item.Type == ReportItemType.PageFooter || item.Type == ReportItemType.PageHeader) continue; // page header&footer is solved when paging is calculated
-
-                item.BuildPages(builder);
-            }
-            */
 
             // finaly, we should also render page footer on last page
             builder.FinishReport(renderContext);
@@ -88,11 +78,10 @@ namespace mReporterLib
             return _items.FirstOrDefault(r => r.Type == ReportItemType.PageFooter);
         }
 
-
-        internal void AddItem(ReportItem item)
+        public void AddItem(ReportItem item)
         {
             this._items.Add(item);
-
         }
+
     }
 }
