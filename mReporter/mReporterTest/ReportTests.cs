@@ -131,6 +131,7 @@ namespace mReporterLib.Tests
                     if (e.Index == 0) {
 
                         e.Result.Value = iData.Header.Supplier.ToString();
+                        e.Result.Style = FontStyle.Emhasized;
 
                     }
 

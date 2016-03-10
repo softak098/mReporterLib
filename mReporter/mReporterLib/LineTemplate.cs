@@ -16,7 +16,7 @@ namespace mReporterLib
         /// <summary>
         /// Internal index if item is a Value
         /// </summary>
-        public int ValueIndex { get; set; }
+        public int Index { get; set; }
 
         public override string ToString()
         {
@@ -74,7 +74,7 @@ namespace mReporterLib
                     _items.Add(new LineTemplateItem {
                         Type = LineTemplateItemType.Value,
                         Width = i - lastFPos,
-                        ValueIndex = valueIndex++
+                        Index = valueIndex++
                     });
                     lastFPos = i--;
 
@@ -102,7 +102,7 @@ namespace mReporterLib
         /// <summary>
         /// Formats result value based on parameters from GetData handler
         /// </summary>
-        public List<string> Format(RenderContext context, GetDataResult[] data)
+        public List<string> Format(RenderContext context, GetDataResult[] resultData)
         {
             List<string> result = new List<string>();
             StringBuilder lineBuilder = new StringBuilder();
@@ -115,7 +115,7 @@ namespace mReporterLib
                 if (item.Type == LineTemplateItemType.Text) lineBuilder.Append(item.Content);
                 else {
                     string firstLineValue = "";
-                    var valueData = data[item.ValueIndex];
+                    var valueData = resultData[item.Index];
                     if (valueData.Value == null) {
                         firstLineValue = new string('?', item.Width);
 
@@ -128,16 +128,6 @@ namespace mReporterLib
                             multilineValues = new Dictionary<int, List<string>>();
 
                         }
-                        /*
-                        int linesCount = valueData.Value.Sum(c => c == '\n' ? 1 : 0);
-
-                        if (linesCount == 1) {
-                            if (valueData.Value.Length > item.Width) {
-
-                            }
-
-                        }
-                        */
 
                         foreach (var valueLine in valueData.Value.Split('\n')) {
 
@@ -146,9 +136,9 @@ namespace mReporterLib
 
                                     if (!valueData.WordWrap) firstLineValue = valueLine.Substring(0, item.Width);
                                     else {
-                                        multilineValues.Add(item.ValueIndex, Split(valueLine, item.Width));
+                                        multilineValues.Add(item.Index, Split(valueLine, item.Width));
 
-                                        firstLineValue = AlignText(multilineValues[item.ValueIndex][0], item.Width, valueData.Alignment);
+                                        firstLineValue = AlignText(multilineValues[item.Index][0], item.Width, valueData.Alignment);
                                     }
                                 }
                                 else {
@@ -160,8 +150,8 @@ namespace mReporterLib
                                 // everything else move to multiline object
                                 var multilineData = Split(valueLine, item.Width);
 
-                                if (multilineValues.ContainsKey(item.ValueIndex)) multilineValues[item.ValueIndex].AddRange(multilineData);
-                                else multilineValues.Add(item.ValueIndex, multilineData);
+                                if (multilineValues.ContainsKey(item.Index)) multilineValues[item.Index].AddRange(multilineData);
+                                else multilineValues.Add(item.Index, multilineData);
                             }
                             firstLine = false;
                         }
@@ -184,24 +174,32 @@ namespace mReporterLib
                     lineBuilder.AppendLine();
 
                     for (int i = 0; i < _items.Count; i++) {
-
-                        string resultValue;
+                        string nextLineValue;
+                        bool applyStyle = true;
 
                         var item = _items[i];
+                        var valueData = resultData[item.Index];
+
                         if (item.Type == LineTemplateItemType.Text) {
-                            if (_line.RepeatStaticItems) resultValue = item.Content;
-                            else resultValue = new string(' ', item.Width);
+                            if (_line.RepeatStaticItems) nextLineValue = item.Content;
+                            else nextLineValue = new string(' ', item.Width);
+                            applyStyle = false; // style can be applied to value items only
                         }
                         else {
-                            var valueData = data[item.ValueIndex];
-                            if (!multilineValues.ContainsKey(item.ValueIndex)) {
-                                resultValue = new string(' ', item.Width);
+                            if (!multilineValues.ContainsKey(item.Index)) {
+                                nextLineValue = new string(' ', item.Width);
 
                             }
-                            else resultValue = AlignText(multilineValues[item.ValueIndex][line], item.Width, valueData.Alignment);
+                            else nextLineValue = AlignText(multilineValues[item.Index][line], item.Width, valueData.Alignment);
                         }
 
-                        lineBuilder.Append(resultValue);
+                        if (applyStyle) {
+                            var styleInfo = context.Report.Dialect.FontStyleSequence(valueData.Style);
+                            if (styleInfo != null) lineBuilder.Append(styleInfo.Start);
+                            lineBuilder.Append(nextLineValue);
+                            if (styleInfo != null) lineBuilder.Append(styleInfo.End);
+                        }
+                        else lineBuilder.Append(nextLineValue);
                     }
                 }
             }
