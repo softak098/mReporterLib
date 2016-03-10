@@ -50,8 +50,10 @@ namespace mReporterLib
 
             builder.Build(renderContext);
 
-            // finaly, we should also render page footer on last page
-            builder.FinishReport(renderContext);
+            if (PageHeight > 0) {
+                // finaly, we should also render page footer on last page
+                builder.FinishReport(renderContext);
+            }
 
             // all items are generated, updated placeholders for page counters
             builder.ReplacePageNumber();

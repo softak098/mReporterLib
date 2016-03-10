@@ -19,7 +19,20 @@ namespace mReporterTest.Data
 
         internal static IEnumerable<ReceiptLineData> CreateData()
         {
-            throw new NotImplementedException();
+            List<ReceiptLineData> result = new List<ReceiptLineData>();
+
+            for (int i = 0; i < 16; i++) {
+
+                result.Add(new ReceiptLineData {
+                    ProductName = "Bread " + i,
+                    Quantity = i,
+                    Price = i * 2.3
+                });
+
+
+            }
+
+            return result;
         }
     }
 }
