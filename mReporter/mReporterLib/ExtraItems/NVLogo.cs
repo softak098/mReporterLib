@@ -18,7 +18,7 @@ namespace mReporterLib
         public override OutputLine Render(RenderContext context)
         {
             var data = new List<string>();
-            data.Add("\x1cp\x01\x00");
+            data.Add("\x1Cp\x01\x00");
             return context.AddToOutput(this, data);
         }
     }

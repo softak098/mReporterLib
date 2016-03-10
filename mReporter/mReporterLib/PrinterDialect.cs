@@ -20,12 +20,11 @@ namespace mReporterLib
     /// <summary>
     /// Base class for all printer dialects, defines control codes for formatting, etc.
     /// </summary>
-    public abstract class PrinterDialect
+    public class PrinterDialect
     {
+        public virtual Sequence FontStyleSequence(FontStyle style) { return null; }
 
-        public abstract Sequence FontStyleSequence(FontStyle style);
-
-        public abstract Sequence Reset();
+        public virtual Sequence Reset() { return new Sequence("\x1b@", ""); }
     }
 
 
@@ -47,10 +46,6 @@ namespace mReporterLib
             return null;
         }
 
-        public override Sequence Reset()
-        {
-            return new Sequence("\x1b@","");
-        }
     }
 
 
@@ -75,10 +70,6 @@ namespace mReporterLib
             return null;
         }
 
-        public override Sequence Reset()
-        {
-            return new Sequence("\x1b@", "");
-        }
     }
 
 }

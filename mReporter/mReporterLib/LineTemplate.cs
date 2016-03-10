@@ -102,7 +102,7 @@ namespace mReporterLib
         /// <summary>
         /// Formats result value based on parameters from GetData handler
         /// </summary>
-        public List<string> Format(RenderContext context,GetDataResult[] data)
+        public List<string> Format(RenderContext context, GetDataResult[] data)
         {
             List<string> result = new List<string>();
             StringBuilder lineBuilder = new StringBuilder();
@@ -114,42 +114,73 @@ namespace mReporterLib
                 var item = _items[i];
                 if (item.Type == LineTemplateItemType.Text) lineBuilder.Append(item.Content);
                 else {
-                    string resultValue;
+                    string firstLineValue = "";
                     var valueData = data[item.ValueIndex];
-                    if (valueData == null) {
-                        resultValue = new string('?', item.Width);
+                    if (valueData.Value == null) {
+                        firstLineValue = new string('?', item.Width);
 
                     }
                     else {
+                        bool firstLine = true;
+                        bool isMultiline = valueData.Value.Any(c => c == '\n');
 
-                        if (valueData.Value.Length > item.Width) {
+                        if (isMultiline) {
+                            multilineValues = new Dictionary<int, List<string>>();
 
-                            if (!valueData.WordWrap) resultValue = valueData.Value.Substring(0, item.Width);
-                            else {
-                                if (multilineValues == null) multilineValues = new Dictionary<int, List<string>>();
-                                multilineValues.Add(item.ValueIndex, Split(valueData.Value, item.Width));
+                        }
+                        /*
+                        int linesCount = valueData.Value.Sum(c => c == '\n' ? 1 : 0);
 
-                                resultValue = AlignText(multilineValues[item.ValueIndex][0], item.Width, valueData.Alignment);
+                        if (linesCount == 1) {
+                            if (valueData.Value.Length > item.Width) {
+
                             }
+
                         }
-                        else {
-                            resultValue = AlignText(valueData.Value, item.Width, valueData.Alignment);
+                        */
+
+                        foreach (var valueLine in valueData.Value.Split('\n')) {
+
+                            if (firstLine) {
+                                if (valueLine.Length > item.Width) {
+
+                                    if (!valueData.WordWrap) firstLineValue = valueLine.Substring(0, item.Width);
+                                    else {
+                                        multilineValues.Add(item.ValueIndex, Split(valueLine, item.Width));
+
+                                        firstLineValue = AlignText(multilineValues[item.ValueIndex][0], item.Width, valueData.Alignment);
+                                    }
+                                }
+                                else {
+                                    firstLineValue = AlignText(valueLine, item.Width, valueData.Alignment);
+                                }
+
+                            }
+                            else {
+                                // everything else move to multiline object
+                                var multilineData = Split(valueLine, item.Width);
+
+                                if (multilineValues.ContainsKey(item.ValueIndex)) multilineValues[item.ValueIndex].AddRange(multilineData);
+                                else multilineValues.Add(item.ValueIndex, multilineData);
+                            }
+                            firstLine = false;
                         }
+
 
                     }
 
                     var styleInfo = context.Report.Dialect.FontStyleSequence(valueData.Style);
                     if (styleInfo != null) lineBuilder.Append(styleInfo.Start);
-                    lineBuilder.Append(resultValue);
+                    lineBuilder.Append(firstLineValue);
                     if (styleInfo != null) lineBuilder.Append(styleInfo.End);
                 }
             }
-            
+
             // rest of lines
             if (multilineValues != null) {
                 int maxLines = 0;
                 foreach (var item in multilineValues) maxLines = Math.Max(maxLines, item.Value.Count);
-                for (int line = 1; line < maxLines; line++) {
+                for (int line = 0; line < maxLines; line++) {
                     lineBuilder.AppendLine();
 
                     for (int i = 0; i < _items.Count; i++) {
@@ -178,7 +209,7 @@ namespace mReporterLib
             var lineStyleInfo = context.Report.Dialect.FontStyleSequence(_line.Style);
             foreach (var lineStr in lineBuilder.ToString().Split('\n')) {
                 if (lineStyleInfo != null) result.Add(string.Concat(lineStyleInfo.Start, lineStr.Trim('\r', '\n'), lineStyleInfo.End));
-                else  result.Add(lineStr.Trim('\r', '\n'));
+                else result.Add(lineStr.Trim('\r', '\n'));
             }
             return result;
         }
