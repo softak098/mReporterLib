@@ -30,6 +30,7 @@ namespace mReporterLib
             CurrentLine = 1;
             CurrentPage = 1;
             _output = new StringBuilder();
+            _output.Append(_report.Dialect.Reset().Start); // we start with reseting printer
         }
 
         /// <summary>

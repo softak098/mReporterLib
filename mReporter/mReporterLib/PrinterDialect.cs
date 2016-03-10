@@ -24,6 +24,8 @@ namespace mReporterLib
     {
 
         public abstract Sequence FontStyleSequence(FontStyle style);
+
+        public abstract Sequence Reset();
     }
 
 
@@ -43,6 +45,11 @@ namespace mReporterLib
                     break;
             }
             return null;
+        }
+
+        public override Sequence Reset()
+        {
+            return new Sequence("\x1b@","");
         }
     }
 
@@ -66,6 +73,11 @@ namespace mReporterLib
                     break;
             }
             return null;
+        }
+
+        public override Sequence Reset()
+        {
+            return new Sequence("\x1b@", "");
         }
     }
 

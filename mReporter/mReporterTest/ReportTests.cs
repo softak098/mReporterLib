@@ -20,21 +20,11 @@ namespace mReporterLib.Tests
             Report rpt = new Report(new ESCPosDialect());
             rpt.PageHeight = 0;
 
+            rpt.AddItem(new NVLogo());
+
             rpt.AddItem(new Line(ReportItemType.ReportHeader) {
 
                 Template = "Report Header [1]"
-
-            });
-
-            rpt.AddItem(new Line(ReportItemType.PageHeader) {
-
-                Template = "Page header on all pages.... page $P of $T"
-
-            });
-
-            rpt.AddItem(new Line(ReportItemType.PageFooter) {
-
-                Template = "\nPage foooooooooter on all pages.... page $P of $T"
 
             });
 
@@ -113,8 +103,8 @@ namespace mReporterLib.Tests
                 }
             }
 
-            var printer = new SerialPrinter(pBuilder.Output, Encoding.ASCII);
-            printer.Print("COM9");
+            //var printer = new SerialPrinter(pBuilder.Output, Encoding.ASCII);
+            //printer.Print("COM9");
 
 
         }

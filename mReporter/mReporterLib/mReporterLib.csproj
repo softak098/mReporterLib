@@ -34,6 +34,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExtraItems\NVLogo.cs" />
     <Compile Include="Group.cs" />
     <Compile Include="Line.cs" />
     <Compile Include="LineTemplate.cs" />
