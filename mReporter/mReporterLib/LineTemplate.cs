@@ -69,7 +69,7 @@ namespace mReporterLib
                     }
 
                     lastFPos = i;
-                    while (_lineTemplate[i] == '_' && i < _lineTemplate.Length) i++;
+                    while (i < _lineTemplate.Length && _lineTemplate[i] == '_') i++;
 
                     _items.Add(new LineTemplateItem {
                         Type = LineTemplateItemType.Value,
