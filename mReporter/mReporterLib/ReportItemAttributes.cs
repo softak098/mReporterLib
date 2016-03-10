@@ -8,7 +8,6 @@ namespace mReporterLib
 
     public enum Align { Left, Right, Center, Justify }
 
-
-
+    public enum FontStyle { Normal, Emhasized, Underline, Italic, Inverse }
 
 }

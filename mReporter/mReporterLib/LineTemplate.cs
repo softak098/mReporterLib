@@ -102,7 +102,7 @@ namespace mReporterLib
         /// <summary>
         /// Formats result value based on parameters from GetData handler
         /// </summary>
-        public List<string> Format(GetDataResult[] data)
+        public List<string> Format(RenderContext context,GetDataResult[] data)
         {
             List<string> result = new List<string>();
             StringBuilder lineBuilder = new StringBuilder();
@@ -117,7 +117,7 @@ namespace mReporterLib
                     string resultValue;
                     var valueData = data[item.ValueIndex];
                     if (valueData == null) {
-                        resultValue = new string('%', item.Width);
+                        resultValue = new string('?', item.Width);
 
                     }
                     else {
@@ -138,8 +138,10 @@ namespace mReporterLib
 
                     }
 
-                    //TODO: append formatting instructions
+                    var styleInfo = context.Report.Dialect.FontStyleSequence(valueData.Style);
+                    if (styleInfo != null) lineBuilder.Append(styleInfo.Start);
                     lineBuilder.Append(resultValue);
+                    if (styleInfo != null) lineBuilder.Append(styleInfo.End);
                 }
             }
             
@@ -173,8 +175,10 @@ namespace mReporterLib
                 }
             }
 
+            var lineStyleInfo = context.Report.Dialect.FontStyleSequence(_line.Style);
             foreach (var lineStr in lineBuilder.ToString().Split('\n')) {
-                result.Add(lineStr.Trim('\r', '\n'));
+                if (lineStyleInfo != null) result.Add(string.Concat(lineStyleInfo.Start, lineStr.Trim('\r', '\n'), lineStyleInfo.End));
+                else  result.Add(lineStr.Trim('\r', '\n'));
             }
             return result;
         }

@@ -3,6 +3,7 @@ using mReporterLib;
 using mReporterTest.Data;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace mReporterLib.Tests
         public void ReportTest()
         {
 
-            Report rpt = new Report();
+            Report rpt = new Report(new ESCPosDialect());
             rpt.PageHeight = 0;
 
             rpt.AddItem(new Line(ReportItemType.ReportHeader) {
@@ -37,19 +38,21 @@ namespace mReporterLib.Tests
 
             });
 
+            int sumQuantity = 0;
+            double sumPrice = 0;
 
             var masterDetailGroup = new Group<ReceiptLineData>();
             masterDetailGroup.DataSource = ReceiptLineData.CreateData();
 
             masterDetailGroup.AddItem(new Line(ReportItemType.Header) {
-
-                Template = "Product           Q         Price"
+                Style= FontStyle.Inverse,
+                Template = "Product              Q         P"
 
             });
 
             masterDetailGroup.AddItem(new Line(ReportItemType.Detail) {
 
-                Template = "_______________ ___ _____",
+                Template = "__________________ ___ _________",
                 GetData = (e) => {
                     var d = e.Data as ReceiptLineData;
 
@@ -61,18 +64,21 @@ namespace mReporterLib.Tests
                         e.Result.Value = d.Quantity.ToString();
                         e.Result.Alignment = Align.Right;
 
+                        sumQuantity += d.Quantity;
+
                     }
                     else if (e.Index == 2) {
                         e.Result.Value = d.Price.ToString("N2");
                         e.Result.Alignment = Align.Right;
 
+                        sumPrice += d.Price;
                     }
                 }
             });
 
             masterDetailGroup.AddItem(new Line(ReportItemType.Footer) {
 
-                Template = "-------------------------------"
+                Template = "--------------------------------"
 
             });
 
@@ -81,7 +87,17 @@ namespace mReporterLib.Tests
             // add footer with summary
             rpt.AddItem(new Line(ReportItemType.ReportFooter) {
 
-                Template = "Report footer is rendered once on last report page [2]"
+                Template = "Total            : ___ _________\n\n",
+                GetData = e=> {
+
+                    if (e.Index == 0) e.Result.Value = sumQuantity.ToString();
+                    else if (e.Index == 1) {
+                        e.Result.Value = sumPrice.ToString("N2");
+                        e.Result.Alignment = Align.Right;
+                        e.Result.Style = FontStyle.Emhasized;
+                    }
+
+                }
 
             });
 
@@ -89,6 +105,17 @@ namespace mReporterLib.Tests
             var rContext = rpt.Render();
             var pBuilder = rpt.BuildPages(rContext);
             Console.WriteLine(pBuilder.Output);
+
+            using (var fs = new FileStream(@"C:\TEMP\data.prn", FileMode.Create)) {
+                using (var sw = new StreamWriter(fs, Encoding.ASCII)) {
+                    sw.Write(pBuilder.Output);
+                    sw.Close();
+                }
+            }
+
+            var printer = new SerialPrinter(pBuilder.Output, Encoding.ASCII);
+            printer.Print("COM9");
+
 
         }
 

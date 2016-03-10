@@ -13,11 +13,16 @@ namespace mReporterLib
         /// Height of page in lines, set to 0 to disable paging
         /// </summary>
         public int PageHeight { get; set; }
+        /// <summary>
+        /// Defines printer dialect used to generate control sequences for printer
+        /// </summary>
+        public PrinterDialect Dialect { get; set; }
 
-        public Report()
+        public Report(PrinterDialect dialect)
         {
             this._items = new List<ReportItem>();
             PageHeight = 66;
+            Dialect = dialect;
         }
 
 

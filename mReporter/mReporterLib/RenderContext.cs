@@ -8,7 +8,7 @@ namespace mReporterLib
 
     public class RenderContext
     {
-        public Report Report { get; private set; }
+        internal Report Report { get; private set; }
 
 
         public RenderContext(Report report)

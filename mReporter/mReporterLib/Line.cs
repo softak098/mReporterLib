@@ -9,15 +9,16 @@ namespace mReporterLib
 
     public class GetDataResult
     {
-        public string Value { get; set; }
-        public Align Alignment { get; set; }
-        public bool WordWrap { get; set; }
-
+        public string Value;
+        public bool WordWrap;
+        public Align Alignment;
+        public FontStyle Style;
 
         public GetDataResult()
         {
             WordWrap = false;
             Alignment = Align.Left;
+            Style = FontStyle.Normal;
         }
 
     }
@@ -57,12 +58,17 @@ namespace mReporterLib
         /// TRUE to generate line on new page (like header for data)
         /// </summary>
         public bool RepeatOnNewPage { get; set; }
+        /// <summary>
+        /// Sets style for whole line
+        /// </summary>
+        public FontStyle Style;
 
         public GetDataHandler GetData { get; set; }
 
         public Line(ReportItemType type) : base(type)
         {
             RepeatStaticItems = false;
+            Style = FontStyle.Normal;
         }
 
         protected virtual GetDataResult GetDataResultInternal(int index)
@@ -90,7 +96,7 @@ namespace mReporterLib
                 r[i] = GetDataResultInternal(i);
             }
 
-            OutputLine oLine = context.AddToOutput(this, _lineTemplate.Format(r));
+            OutputLine oLine = context.AddToOutput(this, _lineTemplate.Format(context,r));
 
             if (this.Items != null) {
                 // process child items
