@@ -9,6 +9,8 @@ namespace mReporterTest.Data
 
     class InvoiceHeaderData
     {
+        public string DocumentNr { get; set; }
+
         public Address Customer { get; set; }
 
         public Address DeliveryAddress { get; set; }
@@ -20,6 +22,7 @@ namespace mReporterTest.Data
             Supplier = new Address();
             Supplier.CreateData();
 
+            DocumentNr = "DB2016005784";
         }
     }
 

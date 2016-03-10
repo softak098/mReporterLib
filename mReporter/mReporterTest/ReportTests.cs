@@ -142,70 +142,106 @@ namespace mReporterLib.Tests
                 Template = "+-----------------------------------------------------+-----------------------------------------------+"
             });
 
-            /*
-            int sumQuantity = 0;
-            double sumPrice = 0;
+            rpt.AddItem(new Line(ReportItemType.PageHeader) {
 
-            var masterDetailGroup = new Group<ReceiptLineData>();
-            masterDetailGroup.DataSource = ReceiptLineData.CreateData();
+                Template = @"_______________________________________________________________________________________________________
+_______________________________________________________________________________________________________",
+                GetData=(e)=> {
 
-            masterDetailGroup.AddItem(new Line(ReportItemType.Header) {
-                Style = FontStyle.Inverse,
-                Template = "Product              Q         P"
+                    if (e.Index == 0) {
+                        e.Result.Value = "Document: "+iData.Header.DocumentNr;
+                        e.Result.Alignment = Align.Right;
+                    }
+                    else {
+
+                        e.Result.Value = "Page: $P / $T";
+                        e.Result.Alignment = Align.Right;
+
+                    }
+
+                }
 
             });
 
-            masterDetailGroup.AddItem(new Line(ReportItemType.Detail) {
+            var detailGroup = new Group<InvoiceDetail>();
+            detailGroup.DataSource = iData.Lines;
 
-                Template = "__________________ ___ _________",
+            detailGroup.AddItem(new Line(ReportItemType.Header) {
+                RepeatOnNewPage=true,
+                Template = "-------------------------------------------------------------------------------------------------------"
+            });
+            detailGroup.AddItem(new Line(ReportItemType.Header) {
+                RepeatOnNewPage = true,
+                Template = "Product                                                                              Quantity  Unit"
+            });
+            detailGroup.AddItem(new Line(ReportItemType.Header) {
+                RepeatOnNewPage = true,
+                Template = "-------------------------------------------------------------------------------------------------------"
+            });
+
+            Line detailGroupDetail;
+            detailGroup.AddItem(detailGroupDetail=new Line(ReportItemType.Detail) {
+
+                Template = "___________________________________________________________________________________ ___________ ____",
                 GetData = (e) => {
-                    var d = e.Data as ReceiptLineData;
+                    var d = e.Data as InvoiceDetail;
 
                     if (e.Index == 0) {
-                        e.Result.Value = d.ProductName;
+                        e.Result.Value = string.Concat(d.Code, " ", d.Name, "\n", d.Description);
                     }
                     else if (e.Index == 1) {
 
-                        e.Result.Value = d.Quantity.ToString();
+                        e.Result.Value = d.Quantity.ToString("N2");
                         e.Result.Alignment = Align.Right;
-
-                        sumQuantity += d.Quantity;
 
                     }
                     else if (e.Index == 2) {
-                        e.Result.Value = d.Price.ToString("N2");
-                        e.Result.Alignment = Align.Right;
-
-                        sumPrice += d.Price;
+                        e.Result.Value = d.Unit;
                     }
                 }
             });
 
-            masterDetailGroup.AddItem(new Line(ReportItemType.Footer) {
-
-                Template = "--------------------------------"
-
+            detailGroup.AddItem(new Line(ReportItemType.Detail) {
+                Template = "" // empty line between other detail lines
             });
+
+            var batchGroup = new Group<Batch>();
+            batchGroup.GetDataSource = () => {
+
+                var data = batchGroup.GetParentData();
+                if (data != null) {
+
+                    return (data as InvoiceDetail).Batches;
+
+                }
+                return null;
+            };
+
+            batchGroup.AddItem(new Line(ReportItemType.Detail) {
+
+                Template = "Batch: ______________________________________ _________ ____",
+                GetData = (e) => {
+                    var d = e.Data as Batch;
+
+                    if (e.Index == 0) {
+                        e.Result.Value = string.Concat(d.Name, " (", d.Code,")");
+                    }
+                    else if (e.Index == 1) {
+
+                        e.Result.Value = d.Quantity.ToString("N2");
+                        e.Result.Alignment = Align.Right;
+
+                    }
+                    else if (e.Index == 2) {
+                        e.Result.Value = d.Unit;
+                    }
+                }
+            });
+            // register subdetail as child item of master detail
+            detailGroupDetail.AddItem(batchGroup);
 
             // add detail group to report
-            rpt.AddItem(masterDetailGroup);
-            // add footer with summary
-            rpt.AddItem(new Line(ReportItemType.ReportFooter) {
-
-                Template = "Total            : ___ _________\n\n",
-                GetData = e => {
-
-                    if (e.Index == 0) e.Result.Value = sumQuantity.ToString();
-                    else if (e.Index == 1) {
-                        e.Result.Value = sumPrice.ToString("N2");
-                        e.Result.Alignment = Align.Right;
-                        e.Result.Style = FontStyle.Emhasized;
-                    }
-
-                }
-
-            });
-            */
+            rpt.AddItem(detailGroup);
 
             // finaly render and build output
             var rContext = rpt.Render();
