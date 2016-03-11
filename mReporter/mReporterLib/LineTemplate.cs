@@ -122,14 +122,15 @@ namespace mReporterLib
                     }
                     else {
                         bool firstLine = true;
-                        bool isMultiline = valueData.Value.Any(c => c == '\n');
+                        string currentValue = valueData.Value.Replace("\r", "");
+                        bool isMultiline = currentValue.Any(c => c == '\n');
 
                         if (isMultiline) {
                             multilineValues = new Dictionary<int, List<string>>();
 
                         }
 
-                        foreach (var valueLine in valueData.Value.Split('\n')) {
+                        foreach (var valueLine in currentValue.Split('\n')) {
 
                             if (firstLine) {
                                 if (valueLine.Length > item.Width) {
