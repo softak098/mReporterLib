@@ -6,12 +6,12 @@ using System.Text;
 namespace mReporterLib
 {
 
-    public class Sequence
+    public class EscCode
     {
         public string Start;
         public string End;
 
-        public Sequence(string start, string end)
+        public EscCode(string start, string end)
         {
             Start = start; End = end;
         }
@@ -24,13 +24,13 @@ namespace mReporterLib
 
     public static class SequenceExtensions
     {
-        public static string ApplySequence(this Sequence s, string value)
+        public static string ApplyEscCode(this EscCode s, string value)
         {
             if (s == null) return value;
             return s.Apply(value);
         }
 
-        public static string ApplySequence(this string s, params Sequence[] seq)
+        public static string ApplyEscCode(this string s, params EscCode[] seq)
         {
             if (s == null) return null;
             StringBuilder sb = new StringBuilder();
@@ -47,39 +47,39 @@ namespace mReporterLib
     /// </summary>
     public class PrinterDialect
     {
-        public virtual Sequence FontStyleSequence(FontStyle style) { return null; }
+        public virtual EscCode FontStyle(FontStyle style) { return null; }
 
-        public virtual Sequence Reset() { return new Sequence("\x1b@", null); }
+        public virtual EscCode Reset() { return new EscCode("\x1b@", null); }
 
-        public virtual Sequence FormFeed() { return new Sequence("\x0C", null); }
-        public virtual Sequence PrintStyleSequence(PrintStyle style) { return null; }
+        public virtual EscCode FormFeed() { return new EscCode("\x0C", null); }
+        public virtual EscCode PrintStyle(PrintStyle style) { return null; }
     }
 
 
     public class ESCPDialect : PrinterDialect
     {
-        public override Sequence FontStyleSequence(FontStyle style)
+        public override EscCode FontStyle(FontStyle style)
         {
             switch (style) {
-                case FontStyle.Emphasized: return new Sequence("\u001bE", "\u001bF");
-                case FontStyle.Underline:
-                    return new Sequence("\x1B-1", "\x1B-0");
-                case FontStyle.Italic:
-                    return new Sequence("\x1B4", "\x1B5");
+                case mReporterLib.FontStyle.Emphasized: return new EscCode("\u001bE", "\u001bF");
+                case mReporterLib.FontStyle.Underline:
+                    return new EscCode("\x1B-1", "\x1B-0");
+                case mReporterLib.FontStyle.Italic:
+                    return new EscCode("\x1B4", "\x1B5");
                 default:
                     break;
             }
             return null;
         }
 
-        public override Sequence PrintStyleSequence(PrintStyle style)
+        public override EscCode PrintStyle(PrintStyle style)
         {
             switch (style) {
-                case PrintStyle.Pica:return new Sequence("\x1BP", null);
-                case PrintStyle.Elite:
-                    return new Sequence("\x1BM", null);
-                case PrintStyle.Condensed:
-                    return new Sequence("\x0F", "\x12");
+                case mReporterLib.PrintStyle.Pica:return new EscCode("\x1BP", null);
+                case mReporterLib.PrintStyle.Elite:
+                    return new EscCode("\x1BM", null);
+                case mReporterLib.PrintStyle.Condensed:
+                    return new EscCode("\x0F", "\x12");
                 default:
                     break;
             }
@@ -90,16 +90,16 @@ namespace mReporterLib
 
     public class ESCPosDialect : PrinterDialect
     {
-        public override Sequence FontStyleSequence(FontStyle style)
+        public override EscCode FontStyle(FontStyle style)
         {
             switch (style) {
-                case FontStyle.Emphasized:
-                    return new Sequence("\u001bE1", "\u001bE0");
-                case FontStyle.Underline:
-                    return new Sequence("\x1B-1", "\x1B-0");
-                case FontStyle.UnderlineDouble: return new Sequence("\x1B-2", "\x1B-0");
-                case FontStyle.Inverse:
-                    return new Sequence("\u001dB1", "\u001dB0");
+                case mReporterLib.FontStyle.Emphasized:
+                    return new EscCode("\u001bE1", "\u001bE0");
+                case mReporterLib.FontStyle.Underline:
+                    return new EscCode("\x1B-1", "\x1B-0");
+                case mReporterLib.FontStyle.UnderlineDouble: return new EscCode("\x1B-2", "\x1B-0");
+                case mReporterLib.FontStyle.Inverse:
+                    return new EscCode("\u001dB1", "\u001dB0");
                 default:
                     break;
             }

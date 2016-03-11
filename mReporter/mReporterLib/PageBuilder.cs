@@ -12,7 +12,7 @@ namespace mReporterLib
 
         StringBuilder _output;
         Report _report;
-        Sequence _ffSequence;
+        EscCode _ffSequence;
 
         /// <summary>
         /// Specifies page height in lines

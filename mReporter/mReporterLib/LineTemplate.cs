@@ -159,7 +159,7 @@ namespace mReporterLib
 
                     }
 
-                    var styleInfo = context.Report.Dialect.FontStyleSequence(valueData.Style);
+                    var styleInfo = context.Report.Dialect.FontStyle(valueData.Style);
                     if (styleInfo != null) lineBuilder.Append(styleInfo.Start);
                     lineBuilder.Append(firstLineValue);
                     if (styleInfo != null) lineBuilder.Append(styleInfo.End);
@@ -194,20 +194,20 @@ namespace mReporterLib
                         }
 
                         if (applyStyle) {
-                            var styleInfo = context.Report.Dialect.FontStyleSequence(valueData.Style);
-                            lineBuilder.Append(styleInfo.ApplySequence(nextLineValue));
+                            var styleInfo = context.Report.Dialect.FontStyle(valueData.Style);
+                            lineBuilder.Append(styleInfo.ApplyEscCode(nextLineValue));
                         }
                         else lineBuilder.Append(nextLineValue);
                     }
                 }
             }
 
-            var lineStyleInfo = context.Report.Dialect.FontStyleSequence(_line.Style);
-            var linePrintInfo = context.Report.Dialect.PrintStyleSequence(_line.PrintStyle);
+            var lineStyleInfo = context.Report.Dialect.FontStyle(_line.Style);
+            var linePrintInfo = context.Report.Dialect.PrintStyle(_line.PrintStyle);
             foreach (var lineStr in lineBuilder.ToString().Split('\n')) {
 
                 result.Add(
-                    lineStr.Trim('\r', '\n').ApplySequence(linePrintInfo,lineStyleInfo)
+                    lineStr.Trim('\r', '\n').ApplyEscCode(linePrintInfo,lineStyleInfo)
                     );
             }
             return result;
