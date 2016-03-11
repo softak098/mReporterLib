@@ -120,6 +120,7 @@ namespace mReporterLib.Tests
             rpt.PageHeight = 66;
 
             rpt.AddItem(new Line(ReportItemType.ReportHeader) {
+                PrintStyle = PrintStyle.Elite,
                 Template = "+--------------------------------------+---------------------------------------+"
             });
 
@@ -174,17 +175,15 @@ _______________________________________________________________________________"
             detailGroup.DataSource = iData.Lines;
 
             detailGroup.AddItem(new Line(ReportItemType.Header) {
-                PrintStyle= PrintStyle.Elite,
+                PrintStyle= PrintStyle.Pica,
                 RepeatOnNewPage = true,
                 Template = "--------------------------------------------------------------------------------"
             });
             detailGroup.AddItem(new Line(ReportItemType.Header) {
-                PrintStyle = PrintStyle.Elite,
                 RepeatOnNewPage = true,
                 Template = "Product                                                           Quantity  Unit"
             });
             detailGroup.AddItem(new Line(ReportItemType.Header) {
-                PrintStyle = PrintStyle.Elite,
                 RepeatOnNewPage = true,
                 Template = "--------------------------------------------------------------------------------"
             });
@@ -264,8 +263,8 @@ _______________________________________________________________________________"
                 }
             }
 
-            byte[] printData = Encoding.ASCII.GetBytes(pBuilder.Output);
-            RawPrinterHelper.SendToPrinter(@"\\SITTINGBULL3.local.nlm.cz\OKI MC562(PCL)", printData);
+            //byte[] printData = Encoding.ASCII.GetBytes(pBuilder.Output);
+            //RawPrinterHelper.SendToPrinter(@"\\SITTINGBULL3.local.nlm.cz\OKI MC562(PCL)", printData);
 
             /*
             Test Name:	EnumeratePrinters

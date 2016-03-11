@@ -73,7 +73,7 @@ namespace mReporterLib
         {
             RepeatStaticItems = false;
             Style = FontStyle.Normal;
-            PrintStyle = PrintStyle.Pica;
+            PrintStyle = PrintStyle.AsBefore;
         }
 
         protected virtual GetDataResult GetDataResultInternal(int index)
