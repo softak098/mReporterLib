@@ -11,10 +11,35 @@ namespace mReporterLib
         public string Start;
         public string End;
 
-        public Sequence(string start,string end)
+        public Sequence(string start, string end)
         {
-            Start = start;End = end;
+            Start = start; End = end;
         }
+
+        public string Apply(string source)
+        {
+            return string.Concat(Start ?? "", source, End ?? "");
+        }
+    }
+
+    public static class SequenceExtensions
+    {
+        public static string ApplySequence(this Sequence s, string value)
+        {
+            if (s == null) return value;
+            return s.Apply(value);
+        }
+
+        public static string ApplySequence(this string s, params Sequence[] seq)
+        {
+            if (s == null) return null;
+            StringBuilder sb = new StringBuilder();
+            foreach (var item in seq) if (item != null) sb.Append(item.Start ?? "");
+            sb.Append(s);
+            foreach (var item in seq) if (item != null) sb.Append(item.End ?? "");
+            return sb.ToString();
+        }
+
     }
 
     /// <summary>
@@ -27,6 +52,7 @@ namespace mReporterLib
         public virtual Sequence Reset() { return new Sequence("\x1b@", null); }
 
         public virtual Sequence FormFeed() { return new Sequence("\x0C", null); }
+        public virtual Sequence PrintStyleSequence(PrintStyle style) { return null; }
     }
 
 
@@ -35,19 +61,30 @@ namespace mReporterLib
         public override Sequence FontStyleSequence(FontStyle style)
         {
             switch (style) {
-                case FontStyle.Emhasized:return new Sequence("\u001bE", "\u001bF");
+                case FontStyle.Emphasized: return new Sequence("\u001bE", "\u001bF");
                 case FontStyle.Underline:
-                    break;
+                    return new Sequence("\x1B-1", "\x1B-0");
                 case FontStyle.Italic:
-                    break;
-                case FontStyle.Inverse:
-                    break;
+                    return new Sequence("\x1B4", "\x1B5");
                 default:
                     break;
             }
             return null;
         }
 
+        public override Sequence PrintStyleSequence(PrintStyle style)
+        {
+            switch (style) {
+                case PrintStyle.Pica:return new Sequence("\x1BP", null);
+                case PrintStyle.Elite:
+                    return new Sequence("\x1BM", null);
+                case PrintStyle.Condensed:
+                    return new Sequence("\x0F", "\x12");
+                default:
+                    break;
+            }
+            return null;
+        }
     }
 
 
@@ -56,14 +93,11 @@ namespace mReporterLib
         public override Sequence FontStyleSequence(FontStyle style)
         {
             switch (style) {
-                case FontStyle.Normal:
-                    break;
-                case FontStyle.Emhasized:
+                case FontStyle.Emphasized:
                     return new Sequence("\u001bE1", "\u001bE0");
                 case FontStyle.Underline:
-                    break;
-                case FontStyle.Italic:
-                    break;
+                    return new Sequence("\x1B-1", "\x1B-0");
+                case FontStyle.UnderlineDouble: return new Sequence("\x1B-2", "\x1B-0");
                 case FontStyle.Inverse:
                     return new Sequence("\u001dB1", "\u001dB0");
                 default:

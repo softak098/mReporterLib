@@ -85,7 +85,7 @@ namespace mReporterLib.Tests
                     else if (e.Index == 1) {
                         e.Result.Value = sumPrice.ToString("N2");
                         e.Result.Alignment = Align.Right;
-                        e.Result.Style = FontStyle.Emhasized;
+                        e.Result.Style = FontStyle.Emphasized;
                     }
 
                 }
@@ -131,7 +131,7 @@ namespace mReporterLib.Tests
                     if (e.Index == 0) {
 
                         e.Result.Value = iData.Header.Supplier.ToString();
-                        e.Result.Style = FontStyle.Emhasized;
+                        e.Result.Style = FontStyle.Emphasized;
 
                     }
 
@@ -174,14 +174,17 @@ _______________________________________________________________________________"
             detailGroup.DataSource = iData.Lines;
 
             detailGroup.AddItem(new Line(ReportItemType.Header) {
+                PrintStyle= PrintStyle.Elite,
                 RepeatOnNewPage = true,
                 Template = "--------------------------------------------------------------------------------"
             });
             detailGroup.AddItem(new Line(ReportItemType.Header) {
+                PrintStyle = PrintStyle.Elite,
                 RepeatOnNewPage = true,
                 Template = "Product                                                           Quantity  Unit"
             });
             detailGroup.AddItem(new Line(ReportItemType.Header) {
+                PrintStyle = PrintStyle.Elite,
                 RepeatOnNewPage = true,
                 Template = "--------------------------------------------------------------------------------"
             });
@@ -261,10 +264,23 @@ _______________________________________________________________________________"
                 }
             }
 
-            //byte[] printData = Encoding.ASCII.GetBytes(pBuilder.Output);
-            //RawPrinterHelper.SendToPrinter(@"", printData);
+            byte[] printData = Encoding.ASCII.GetBytes(pBuilder.Output);
+            RawPrinterHelper.SendToPrinter(@"\\SITTINGBULL3.local.nlm.cz\OKI MC562(PCL)", printData);
+
+            /*
+            Test Name:	EnumeratePrinters
+Test Outcome:	Passed
+Result StandardOutput:	
+Send To OneNote 2013
+POS58 10.0.0.6
+Microsoft XPS Document Writer
+Microsoft Print to PDF
+Fax
+\\SITTINGBULL3.local.nlm.cz\OKI MC562(PCL)
+\\ZBYNEK-PC\Xerox WorkCentre 6015B
 
 
+    */
         }
 
         [TestMethod()]

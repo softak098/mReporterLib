@@ -62,6 +62,10 @@ namespace mReporterLib
         /// Sets style for whole line
         /// </summary>
         public FontStyle Style;
+        /// <summary>
+        /// Sets print style for whole line
+        /// </summary>
+        public PrintStyle PrintStyle;
 
         public GetDataHandler GetData { get; set; }
 
@@ -69,6 +73,7 @@ namespace mReporterLib
         {
             RepeatStaticItems = false;
             Style = FontStyle.Normal;
+            PrintStyle = PrintStyle.Pica;
         }
 
         protected virtual GetDataResult GetDataResultInternal(int index)

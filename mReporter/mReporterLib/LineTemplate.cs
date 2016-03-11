@@ -195,9 +195,7 @@ namespace mReporterLib
 
                         if (applyStyle) {
                             var styleInfo = context.Report.Dialect.FontStyleSequence(valueData.Style);
-                            if (styleInfo != null) lineBuilder.Append(styleInfo.Start);
-                            lineBuilder.Append(nextLineValue);
-                            if (styleInfo != null) lineBuilder.Append(styleInfo.End);
+                            lineBuilder.Append(styleInfo.ApplySequence(nextLineValue));
                         }
                         else lineBuilder.Append(nextLineValue);
                     }
@@ -205,9 +203,12 @@ namespace mReporterLib
             }
 
             var lineStyleInfo = context.Report.Dialect.FontStyleSequence(_line.Style);
+            var linePrintInfo = context.Report.Dialect.PrintStyleSequence(_line.PrintStyle);
             foreach (var lineStr in lineBuilder.ToString().Split('\n')) {
-                if (lineStyleInfo != null) result.Add(string.Concat(lineStyleInfo.Start, lineStr.Trim('\r', '\n'), lineStyleInfo.End));
-                else result.Add(lineStr.Trim('\r', '\n'));
+
+                result.Add(
+                    lineStr.Trim('\r', '\n').ApplySequence(linePrintInfo,lineStyleInfo)
+                    );
             }
             return result;
         }
