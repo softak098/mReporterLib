@@ -120,12 +120,12 @@ namespace mReporterLib.Tests
             rpt.PageHeight = 66;
 
             rpt.AddItem(new Line(ReportItemType.ReportHeader) {
-                Template = "+-----------------------------------------------------+-----------------------------------------------+"
+                Template = "+--------------------------------------+---------------------------------------+"
             });
 
             rpt.AddItem(new Line(ReportItemType.ReportHeader) {
                 RepeatStaticItems = true,
-                Template = "| ___________________________________________________ | _____________________________________________ |",
+                Template = "| ____________________________________ | _____________________________________ |",
                 GetData = (e) => {
 
                     if (e.Index == 0) {
@@ -139,17 +139,17 @@ namespace mReporterLib.Tests
             });
 
             rpt.AddItem(new Line(ReportItemType.ReportHeader) {
-                Template = "+-----------------------------------------------------+-----------------------------------------------+"
+                Template = "+--------------------------------------+---------------------------------------+"
             });
 
             rpt.AddItem(new Line(ReportItemType.PageHeader) {
 
-                Template = @"_______________________________________________________________________________________________________
-_______________________________________________________________________________________________________",
-                GetData=(e)=> {
+                Template = @"_______________________________________________________________________________
+_______________________________________________________________________________",
+                GetData = (e) => {
 
                     if (e.Index == 0) {
-                        e.Result.Value = "Document: "+iData.Header.DocumentNr;
+                        e.Result.Value = "Document: " + iData.Header.DocumentNr;
                         e.Result.Alignment = Align.Right;
                     }
                     else {
@@ -163,26 +163,33 @@ ________________________________________________________________________________
 
             });
 
+            rpt.AddItem(new Line(ReportItemType.PageFooter) {
+
+                Template = "\n--------------------------------------------------------------------------------\n(c) 2016 Our Company name"
+
+            });
+
+
             var detailGroup = new Group<InvoiceDetail>();
             detailGroup.DataSource = iData.Lines;
 
             detailGroup.AddItem(new Line(ReportItemType.Header) {
-                RepeatOnNewPage=true,
-                Template = "-------------------------------------------------------------------------------------------------------"
+                RepeatOnNewPage = true,
+                Template = "--------------------------------------------------------------------------------"
             });
             detailGroup.AddItem(new Line(ReportItemType.Header) {
                 RepeatOnNewPage = true,
-                Template = "Product                                                                              Quantity  Unit"
+                Template = "Product                                                           Quantity  Unit"
             });
             detailGroup.AddItem(new Line(ReportItemType.Header) {
                 RepeatOnNewPage = true,
-                Template = "-------------------------------------------------------------------------------------------------------"
+                Template = "--------------------------------------------------------------------------------"
             });
 
             Line detailGroupDetail;
-            detailGroup.AddItem(detailGroupDetail=new Line(ReportItemType.Detail) {
+            detailGroup.AddItem(detailGroupDetail = new Line(ReportItemType.Detail) {
 
-                Template = "___________________________________________________________________________________ ___________ ____",
+                Template = "_______________________________________________________________ ___________ ____",
                 GetData = (e) => {
                     var d = e.Data as InvoiceDetail;
 
@@ -224,7 +231,7 @@ ________________________________________________________________________________
                     var d = e.Data as Batch;
 
                     if (e.Index == 0) {
-                        e.Result.Value = string.Concat(d.Name, " (", d.Code,")");
+                        e.Result.Value = string.Concat(d.Name, " (", d.Code, ")");
                     }
                     else if (e.Index == 1) {
 
@@ -254,9 +261,21 @@ ________________________________________________________________________________
                 }
             }
 
+            //byte[] printData = Encoding.ASCII.GetBytes(pBuilder.Output);
+            //RawPrinterHelper.SendToPrinter(@"", printData);
+
+
         }
 
+        [TestMethod()]
+        public void EnumeratePrinters()
+        {
 
+            foreach (string printer in System.Drawing.Printing.PrinterSettings.InstalledPrinters) {
+                Console.WriteLine(printer);
+            }
+
+        }
 
     }
 }

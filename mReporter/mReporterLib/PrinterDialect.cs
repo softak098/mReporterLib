@@ -24,7 +24,9 @@ namespace mReporterLib
     {
         public virtual Sequence FontStyleSequence(FontStyle style) { return null; }
 
-        public virtual Sequence Reset() { return new Sequence("\x1b@", ""); }
+        public virtual Sequence Reset() { return new Sequence("\x1b@", null); }
+
+        public virtual Sequence FormFeed() { return new Sequence("\x0C", null); }
     }
 
 
