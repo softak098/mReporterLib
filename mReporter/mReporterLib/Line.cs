@@ -112,9 +112,9 @@ namespace mReporterLib
             if (this.Items != null) {
                 // process child items
                 context.SetOutputParent(oLine);
-                foreach (var item in this.Items) {
-                    item.Render(context);
-                }
+
+                Items.ForEach(i => i.Render(context));
+
                 context.SetOutputParent(oLine.Parent);
             }
 

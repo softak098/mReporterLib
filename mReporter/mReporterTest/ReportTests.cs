@@ -196,7 +196,7 @@ _______________________________________________________________________________"
                     var d = e.Data as InvoiceDetail;
 
                     if (e.Index == 0) {
-                        e.Result.Value = string.Concat(d.Code, " ", d.Name, "\n", d.Description, "\n", d.Description, "\n", d.Description, "\n", d.Description, "\n", d.Description);
+                        e.Result.Value = string.Concat(d.Code, " ", d.Name, "\n", d.Description, "\n", d.Description, "\n", d.Description);
                     }
                     else if (e.Index == 1) {
 

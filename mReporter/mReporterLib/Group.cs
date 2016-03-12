@@ -43,46 +43,27 @@ namespace mReporterLib
 
         void ForAllReportItems(Action<ReportItem, TDataSource> action)
         {
-
-
-
-            foreach (ReportItem item in Items.Where(i => i.Type == ReportItemType.Header)) {
-
-                action(item, null);
-
-
-
-            }
+            ForReportItem(ReportItemType.Header, action);
 
             if (this.DataSource != null) {
 
                 foreach (var dataItem in this.DataSource) {
 
-                    foreach (ReportItem item in Items.Where(i => i.Type == ReportItemType.Detail)) {
-
-                        action(item, dataItem);
-
-                    }
+                    ForReportItem(ReportItemType.Detail, action, dataItem);
                 }
 
             }
             else {
-                foreach (ReportItem item in Items.Where(i => i.Type == ReportItemType.Detail)) {
-                    action(item, null);
-                }
+                ForReportItem(ReportItemType.Detail, action);
             }
 
-            foreach (ReportItem item in Items.Where(i => i.Type == ReportItemType.Group)) {
-                action(item, null);
-            }
-
-
-            foreach (ReportItem item in Items.Where(i => i.Type == ReportItemType.Footer)) {
-                action(item, null);
-
-            }
-
+            ForReportItem(ReportItemType.Group, action);
+            ForReportItem(ReportItemType.Footer, action);
         }
 
+        void ForReportItem(ReportItemType type, Action<ReportItem, TDataSource> action, TDataSource data = default(TDataSource))
+        {
+            foreach (ReportItem item in Items.Where(i => i.Type == type)) action(item, data);
+        }
     }
 }
