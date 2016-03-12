@@ -68,7 +68,14 @@ namespace mReporterLib
 
             int startLine = 0;
             while (linesToBuild > 0) {
-                bool nextPage = CurrentLine + linesToBuild + footerLines > PageHeight + 1;
+                bool pageBreak = CurrentLine + linesToBuild + footerLines > PageHeight + 1;
+                if (pageBreak && lineObj.SourceReportItem is Line) {
+                    bool breakInside = (lineObj.SourceReportItem as Line).PageBreakInside;
+                    if (!breakInside) {
+                        AddNewPage(context, true);
+                        pageBreak = false;
+                    }
+                }
 
                 int linesToInsert = PageHeight - footerLines - CurrentLine + 1;
                 if (linesToInsert > linesToBuild) linesToInsert = linesToBuild;
@@ -78,7 +85,7 @@ namespace mReporterLib
                     startLine += linesToInsert;
                 }
 
-                if (nextPage) {
+                if (pageBreak) {
                     // we should form new page
                     AddNewPage(context, true);
                 }
@@ -96,7 +103,7 @@ namespace mReporterLib
             int footerLines = footerLine != null ? footerLine.GeneratedLines.Count : 0;
             if (footerLine != null) {
                 // add several empty lines to place footer on bottom of page
-                for (int i = 0; i < PageHeight - footerLines - CurrentLine+1; i++) {
+                for (int i = 0; i < PageHeight - footerLines - CurrentLine + 1; i++) {
 
                     _output.AppendLine();
                 }

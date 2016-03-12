@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace mReporterLib
 {
@@ -33,6 +34,7 @@ namespace mReporterLib
         string _lineTemplate;
         List<LineTemplateItem> _items;
         Line _line;
+        Regex _filter;
 
         /// <summary>
         /// Returns number of values on line
@@ -43,6 +45,7 @@ namespace mReporterLib
         {
             _lineTemplate = lineTemplate;
             _line = line;
+            _filter= new Regex(@"[\x00-\x09\x0B-\x1F]+");
             Parse();
         }
 
@@ -50,6 +53,7 @@ namespace mReporterLib
         void Parse()
         {
             _items = new List<LineTemplateItem>();
+            if (_lineTemplate == null) return;
 
             StringBuilder sb = new StringBuilder();
             int lastFPos = 0;
@@ -62,7 +66,7 @@ namespace mReporterLib
 
                         _items.Add(new LineTemplateItem {
                             Type = LineTemplateItemType.Text,
-                            Content = sb.ToString(),
+                            Content = _filter.Replace(sb.ToString(),""),
                             Width = i - lastFPos
                         });
                         sb.Clear();
@@ -90,7 +94,7 @@ namespace mReporterLib
 
                 _items.Add(new LineTemplateItem {
                     Type = LineTemplateItemType.Text,
-                    Content = sb.ToString(),
+                    Content = _filter.Replace(sb.ToString(), ""),
                     Width = _lineTemplate.Length - lastFPos
                 });
 
@@ -117,12 +121,12 @@ namespace mReporterLib
                     string firstLineValue = "";
                     var valueData = resultData[item.Index];
                     if (valueData.Value == null) {
-                        firstLineValue = new string('?', item.Width);
+                        firstLineValue = new string('%', item.Width);
 
                     }
                     else {
                         bool firstLine = true;
-                        string currentValue = valueData.Value.Replace("\r", "");
+                        string currentValue = _filter.Replace( valueData.Value,"");
                         bool isMultiline = currentValue.Any(c => c == '\n');
 
                         if (isMultiline) {
