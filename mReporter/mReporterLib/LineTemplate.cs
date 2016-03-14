@@ -112,6 +112,15 @@ namespace mReporterLib
             StringBuilder lineBuilder = new StringBuilder();
 
             Dictionary<int, List<string>> multilineValues = null;
+            Action<int, List<string>> _AddMultiline = (index, data) => {
+
+                if (multilineValues == null) multilineValues = new Dictionary<int, List<string>>();
+
+                if (multilineValues.ContainsKey(index)) multilineValues[index].AddRange(data);
+                else multilineValues.Add(index, data);
+
+            };
+
             // first line
             for (int i = 0; i < _items.Count; i++) {
 
@@ -127,36 +136,39 @@ namespace mReporterLib
                     else {
                         bool firstLine = true;
                         string currentValue = _filter.Replace( valueData.Value,"");
+                        /*
                         bool isMultiline = currentValue.Any(c => c == '\n');
 
                         if (isMultiline) {
                             multilineValues = new Dictionary<int, List<string>>();
 
                         }
+                        */
 
                         foreach (var valueLine in currentValue.Split('\n')) {
 
                             if (firstLine) {
                                 if (valueLine.Length > item.Width) {
 
-                                    if (!valueData.WordWrap) firstLineValue = valueLine.Substring(0, item.Width);
-                                    else {
-                                        multilineValues.Add(item.Index, Split(valueLine, item.Width));
+                                    if (!valueData.WordWrap) {
+                                        _AddMultiline(item.Index, new List<string> { valueLine });
+                                        firstLineValue = valueLine.Substring(0, item.Width);
 
+                                    }
+                                    else {
+                                        _AddMultiline(item.Index, Split(valueLine, item.Width));
                                         firstLineValue = AlignText(multilineValues[item.Index][0], item.Width, valueData.Alignment);
                                     }
                                 }
                                 else {
+                                    _AddMultiline(item.Index, new List<string> { valueLine });
                                     firstLineValue = AlignText(valueLine, item.Width, valueData.Alignment);
                                 }
 
                             }
                             else {
                                 // everything else move to multiline object
-                                var multilineData = Split(valueLine, item.Width);
-
-                                if (multilineValues.ContainsKey(item.Index)) multilineValues[item.Index].AddRange(multilineData);
-                                else multilineValues.Add(item.Index, multilineData);
+                                _AddMultiline(item.Index, Split(valueLine, item.Width));
                             }
                             firstLine = false;
                         }
@@ -175,7 +187,7 @@ namespace mReporterLib
             if (multilineValues != null) {
                 int maxLines = 0;
                 foreach (var item in multilineValues) maxLines = Math.Max(maxLines, item.Value.Count);
-                for (int line = 0; line < maxLines; line++) {
+                for (int line = 1; line < maxLines; line++) {
                     lineBuilder.AppendLine();
 
                     for (int i = 0; i < _items.Count; i++) {
@@ -191,7 +203,7 @@ namespace mReporterLib
                             applyStyle = false; // style can be applied to value items only
                         }
                         else {
-                            if (!multilineValues.ContainsKey(item.Index)) {
+                            if (!multilineValues.ContainsKey(item.Index) || multilineValues[item.Index].Count<=line) {
                                 nextLineValue = new string(' ', item.Width);
 
                             }

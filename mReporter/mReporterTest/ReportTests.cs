@@ -196,7 +196,21 @@ _______________________________________________________________________________"
                     var d = e.Data as InvoiceDetail;
 
                     if (e.Index == 0) {
-                        e.Result.Value = string.Concat(d.Code, " ", d.Name, "\n", d.Description, "\n", d.Description, "\n", d.Description);
+                        e.Result.WordWrap = true;
+                        e.Result.Value = @"Kupující má právo požádat prodávajícího o zpětný prodej vratných obalů (palety, rámy apod.) a prodávající je tak povinen za stejnou cenu vratné obaly koupit od kupujícího zpět za podmínky, že příslušné obaly budou vráceny prodávajícímu v neporušeném stavu  do 21 dnů od jejich původního obdržení kupujícím od prodávajícího.  
+Převzetí dopravcem:  OP/ŘP:                                Podpis:
+
+
+Převzetí odběratelem: Převzaté zboží odpovídá množství, kvalitě i ostatním podmínkám uvedeným v kupní smlouvě.
+Jméno:                               Podpis:                                    Datum:
+          
+
+
+
+";
+                        
+                        
+                        //string.Concat(d.Code, " ", d.Name, "\n", d.Description, "\n", d.Description, "\n", d.Description);
                     }
                     else if (e.Index == 1) {
 
