@@ -45,7 +45,7 @@ namespace mReporterLib
         {
             _lineTemplate = lineTemplate;
             _line = line;
-            _filter= new Regex(@"[\x00-\x09\x0B-\x1F]+");
+            _filter = new Regex(@"[\x00-\x09\x0B-\x1F]+");
             Parse();
         }
 
@@ -66,7 +66,7 @@ namespace mReporterLib
 
                         _items.Add(new LineTemplateItem {
                             Type = LineTemplateItemType.Text,
-                            Content = _filter.Replace(sb.ToString(),""),
+                            Content = _filter.Replace(sb.ToString(), ""),
                             Width = i - lastFPos
                         });
                         sb.Clear();
@@ -135,15 +135,7 @@ namespace mReporterLib
                     }
                     else {
                         bool firstLine = true;
-                        string currentValue = _filter.Replace( valueData.Value,"");
-                        /*
-                        bool isMultiline = currentValue.Any(c => c == '\n');
-
-                        if (isMultiline) {
-                            multilineValues = new Dictionary<int, List<string>>();
-
-                        }
-                        */
+                        string currentValue = _filter.Replace(valueData.Value, "");
 
                         foreach (var valueLine in currentValue.Split('\n')) {
 
@@ -156,7 +148,7 @@ namespace mReporterLib
 
                                     }
                                     else {
-                                        _AddMultiline(item.Index, Split(valueLine, item.Width));
+                                        _AddMultiline(item.Index, WordWrap(valueLine, item.Width));
                                         firstLineValue = AlignText(multilineValues[item.Index][0], item.Width, valueData.Alignment);
                                     }
                                 }
@@ -168,7 +160,7 @@ namespace mReporterLib
                             }
                             else {
                                 // everything else move to multiline object
-                                _AddMultiline(item.Index, Split(valueLine, item.Width));
+                                _AddMultiline(item.Index, WordWrap(valueLine, item.Width));
                             }
                             firstLine = false;
                         }
@@ -203,7 +195,7 @@ namespace mReporterLib
                             applyStyle = false; // style can be applied to value items only
                         }
                         else {
-                            if (!multilineValues.ContainsKey(item.Index) || multilineValues[item.Index].Count<=line) {
+                            if (!multilineValues.ContainsKey(item.Index) || multilineValues[item.Index].Count <= line) {
                                 nextLineValue = new string(' ', item.Width);
 
                             }
@@ -224,31 +216,47 @@ namespace mReporterLib
             foreach (var lineStr in lineBuilder.ToString().Split('\n')) {
 
                 result.Add(
-                    lineStr.Trim('\r', '\n').ApplyEscCode(linePrintInfo,lineStyleInfo)
+                    lineStr.Trim('\r', '\n').ApplyEscCode(linePrintInfo, lineStyleInfo)
                     );
             }
             return result;
         }
 
-        static List<string> Split(string s, int width)
+        static List<string> WordWrap(string the_string, int width)
         {
-            var result = new List<string>();
-            StringBuilder sbLine = new StringBuilder();
-            foreach (var word in s.Split(' ')) {
-                if (string.IsNullOrWhiteSpace(word) || word.Any(c => c < 33)) continue;
-                int wordLen = word.Length + (sbLine.Length > 0 ? 1 : 0);
-                if (wordLen + sbLine.Length > width) {
-                    result.Add(sbLine.ToString());
-                    sbLine.Clear();
-                }
-                if (sbLine.Length > 0) sbLine.Append(' ');
-                sbLine.Append(word);
-            }
-            if (sbLine.Length > 0) {
-                result.Add(sbLine.ToString());
-            }
+            if (width < 1) return new List<string> { the_string };
+
+            int pos = 0, eol = the_string.Length;
+            List<string> result = new List<string>();
+
+            do {
+                int len = eol - pos;
+
+                if (len > width)
+                    len = BreakLine(the_string, pos, width);
+
+                result.Add(the_string.Substring(pos, len));
+
+                pos += len;
+
+                // Trim whitespace following break
+                while (pos < eol && Char.IsWhiteSpace(the_string[pos])) pos++;
+
+            } while (eol > pos);
+
             return result;
         }
+
+        static int BreakLine(string text, int pos, int max)
+        {
+            int i = max - 1;
+            while (i >= 0 && !char.IsWhiteSpace(text[pos + i])) i--;
+            if (i < 0) return max;
+            while (i >= 0 && Char.IsWhiteSpace(text[pos + i])) i--;
+            return i + 1;
+        }
+
+
 
         static string AlignText(string s, int width, Align alignment)
         {
