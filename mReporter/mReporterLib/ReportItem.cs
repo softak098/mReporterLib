@@ -5,6 +5,7 @@ using System.Text;
 
 namespace mReporterLib
 {
+
     public abstract class ReportItem
     {
         protected ReportItem Parent { get; private set; }

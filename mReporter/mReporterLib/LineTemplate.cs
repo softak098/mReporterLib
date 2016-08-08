@@ -164,14 +164,11 @@ namespace mReporterLib
                             }
                             firstLine = false;
                         }
-
-
                     }
 
                     var styleInfo = context.Report.Dialect.FontStyle(valueData.Style);
-                    if (styleInfo != null) lineBuilder.Append(styleInfo.Start);
-                    lineBuilder.Append(firstLineValue);
-                    if (styleInfo != null) lineBuilder.Append(styleInfo.End);
+                    var alignInfo = context.Report.Dialect.Align(_line.Align);
+                    lineBuilder.Append(firstLineValue.ApplyEscCode(alignInfo, styleInfo));
                 }
             }
 
@@ -213,10 +210,11 @@ namespace mReporterLib
 
             var lineStyleInfo = context.Report.Dialect.FontStyle(_line.Style);
             var linePrintInfo = context.Report.Dialect.PrintStyle(_line.PrintStyle);
+            var lineAlignInfo = context.Report.Dialect.Align(_line.Align);
             foreach (var lineStr in lineBuilder.ToString().Split('\n')) {
 
                 result.Add(
-                    lineStr.Trim('\r', '\n').ApplyEscCode(linePrintInfo, lineStyleInfo)
+                    lineStr.Trim('\r', '\n').ApplyEscCode(lineAlignInfo,  linePrintInfo, lineStyleInfo)
                     );
             }
             return result;

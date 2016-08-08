@@ -24,14 +24,14 @@ namespace mReporterLib
 
         internal IEnumerable<OutputLine> GetLines(OutputLine parent)
         {
-            foreach (var oLine in _outputLines.Where(r=>r.Parent==parent)) {
+            foreach (var oLine in _outputLines.Where(r => r.Parent == parent)) {
                 yield return oLine;
             }
         }
 
         internal OutputLine AddToOutput(ReportItem item, List<string> data)
         {
-            var oLine=new OutputLine(_currentOutputLine, item, data);
+            var oLine = new OutputLine(_currentOutputLine, item, data);
             _outputLines.Add(oLine);
             return oLine;
         }

@@ -24,7 +24,8 @@ namespace mReporterLib.Tests
 
             rpt.AddItem(new Line(ReportItemType.ReportHeader) {
 
-                Template = "Report Header [1]"
+                Template = "Hlavička stránky [1]",
+                Align = Align.Left
 
             });
 
@@ -103,9 +104,14 @@ namespace mReporterLib.Tests
                 }
             }
 
-            //var printer = new SerialPrinter(pBuilder.Output, Encoding.ASCII);
-            //printer.Print("COM9");
+            /*
+            var printer = new SerialPrinter(pBuilder.Output, Encoding.ASCII);
+            printer.Print("COM9");
+            */
 
+            byte[] data = Encoding.GetEncoding(852).GetBytes(pBuilder.Output);
+
+            RawPrinterHelper.SendToPrinter("POS-58", data);
 
         }
 

@@ -14,16 +14,17 @@ namespace mReporterLib
             { return _data; }
         }
 
-        public OutputLine Parent { get;private set; }
-
+        public OutputLine Parent { get; private set; }
         public ReportItem SourceReportItem { get; set; }
+        public bool AppendNewLine { get; set; }
 
         public OutputLine(OutputLine parent)
         {
             this.Parent = parent;
+            this.AppendNewLine = true;
         }
 
-        public OutputLine(OutputLine parent, ReportItem item, List<string> data):this(parent)
+        public OutputLine(OutputLine parent, ReportItem item, List<string> data) : this(parent)
         {
             SourceReportItem = item;
 

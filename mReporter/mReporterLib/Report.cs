@@ -10,7 +10,7 @@ namespace mReporterLib
         List<ReportItem> _items;
         internal List<ReportItem> Items { get { return _items; } }
         /// <summary>
-        /// Height of page in lines, set to 0 to disable paging
+        /// Height of page in lines, set to 0 to disable paging (for endless printers only)
         /// </summary>
         public int PageHeight { get; set; }
         /// <summary>
@@ -63,6 +63,8 @@ namespace mReporterLib
             // all items are generated, updated placeholders for page counters
             builder.ReplacePageNumber();
             builder.ReplaceTotalPageNumber();
+
+            builder.Reset();
 
             return builder;
         }

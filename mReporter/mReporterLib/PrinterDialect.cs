@@ -53,6 +53,15 @@ namespace mReporterLib
 
         public virtual EscCode FormFeed() { return new EscCode("\x0C", null); }
         public virtual EscCode PrintStyle(PrintStyle style) { return null; }
+        public virtual EscCode Align(Align style) {
+            switch (style) {
+                default:return null;
+                case mReporterLib.Align.Left: return new EscCode("\u001Ba0", null);
+                case mReporterLib.Align.Right: return new EscCode("\u001Ba2", null);
+                case mReporterLib.Align.Center: return new EscCode("\u001Ba1", null);
+                case mReporterLib.Align.Justify: return new EscCode("\u001Ba3", null);
+            }
+        }
     }
 
 

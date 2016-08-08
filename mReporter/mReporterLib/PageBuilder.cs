@@ -31,7 +31,7 @@ namespace mReporterLib
             CurrentLine = 1;
             CurrentPage = 1;
             _output = new StringBuilder();
-            _output.Append(_report.Dialect.Reset().Start); // we start with reseting printer
+            Reset();
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace mReporterLib
 
             if (PageHeight == 0) {
                 // in infinite report (for POS) there is no need to check paging
-                AddToOutput(lineObj.GeneratedLines, 0);
+                AddToOutput(lineObj, 0);
                 return;
             }
 
@@ -95,6 +95,13 @@ namespace mReporterLib
 
         }
 
+        /// <summary>
+        /// Invokes printer reset operation
+        /// </summary>
+        internal void Reset()
+        {
+            _output.Append(_report.Dialect.Reset().Start); // we start with reseting printer
+        }
 
         void AddNewPage(RenderContext context, bool addNextLines)
         {
@@ -190,15 +197,23 @@ namespace mReporterLib
             _output.Replace(TOTAL_PAGE_NUMBER_PLACEHOLDER, CurrentPage.ToString().PadLeft(2));
         }
 
-        void AddToOutput(List<string> lines, int from, int count = int.MaxValue)
+        void AddToOutput(List<string> lines, int from, int count = int.MaxValue, bool addNewLine = true)
         {
             count = Math.Min(count, lines.Count - from);
             for (int i = 0; i < count; i++) {
-                _output.AppendLine(lines[i + from]);
+                if (addNewLine) _output.AppendLine(lines[i + from]);
+                else {
+                    _output.Append(lines[i + from]);
+                }
             }
 
         }
 
+        void AddToOutput(OutputLine line, int from, int count = int.MaxValue)
+        {
+            var lines = line.GeneratedLines;
+            AddToOutput(lines, from, count, line.AppendNewLine);
+        }
 
         /// <summary>
         /// Final output from generator

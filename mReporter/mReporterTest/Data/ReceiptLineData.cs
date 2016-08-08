@@ -25,8 +25,8 @@ namespace mReporterTest.Data
 
                 result.Add(new ReceiptLineData {
                     ProductName = "Bread " + i,
-                    Quantity = i,
-                    Price = i * 2.3
+                    Quantity = i+3,
+                    Price = i * 13.13
                 });
 
 
