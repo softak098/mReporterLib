@@ -36,9 +36,26 @@ namespace mReporterLib
             return oLine;
         }
 
+        internal OutputLine AddToOutput(ReportItem item, string data)
+        {
+            var oLine = new OutputLine(_currentOutputLine, item, data);
+            _outputLines.Add(oLine);
+            return oLine;
+        }
+
         internal void SetOutputParent(OutputLine newOutputParent)
         {
             _currentOutputLine = newOutputParent;
+        }
+
+        /// <summary>
+        /// Helper method to simplify creation of code sequences
+        /// </summary>
+        internal char[] CreateCode(params int[] codes)
+        {
+            var result = new char[codes.Length];
+            for (int i = 0; i < codes.Length; i++) result[i] = (char)codes[i];
+            return result;
         }
 
 

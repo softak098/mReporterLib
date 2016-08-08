@@ -16,6 +16,9 @@ namespace mReporterLib
 
         public OutputLine Parent { get; private set; }
         public ReportItem SourceReportItem { get; set; }
+        /// <summary>
+        /// Controls if output builder inserts CRLF characters after the line, Default=TRUE
+        /// </summary>
         public bool AppendNewLine { get; set; }
 
         public OutputLine(OutputLine parent)
@@ -30,6 +33,13 @@ namespace mReporterLib
 
             _data = data;
 
+        }
+
+        public OutputLine(OutputLine parent, ReportItem item, string data) : this(parent)
+        {
+            SourceReportItem = item;
+            _data = new List<string>();
+            _data.Add(data);
         }
 
     }

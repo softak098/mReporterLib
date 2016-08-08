@@ -79,7 +79,7 @@ namespace mReporterLib.Tests
             // add footer with summary
             rpt.AddItem(new Line(ReportItemType.ReportFooter) {
 
-                Template = "Total            : ___ _________\n\n",
+                Template = "Total            : ___ _________",
                 GetData = e => {
 
                     if (e.Index == 0) e.Result.Value = sumQuantity.ToString();
@@ -92,6 +92,19 @@ namespace mReporterLib.Tests
                 }
 
             });
+
+            // barcode line test
+            var barcodeItem = new Barcode() {
+                BarcodeType = BarcodeType.ITF,
+            };
+
+            rpt.AddItem(barcodeItem);
+
+            barcodeItem.SetData(43657621);
+
+            rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN13, BarcodeData = "5032037076982" });
+            rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN8, BarcodeData = "5032370" });
+
 
             // finaly render and build output
             var rContext = rpt.Render();
