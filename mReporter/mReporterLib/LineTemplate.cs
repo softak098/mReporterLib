@@ -167,7 +167,7 @@ namespace mReporterLib
                     }
 
                     var styleInfo = context.Report.Dialect.FontStyle(valueData.Style);
-                    var alignInfo = context.Report.Dialect.Align(_line.Align);
+                    var alignInfo = context.Report.Dialect.Align(_line.Alignment);
                     lineBuilder.Append(firstLineValue.ApplyEscCode(alignInfo, styleInfo));
                 }
             }
@@ -210,7 +210,7 @@ namespace mReporterLib
 
             var lineStyleInfo = context.Report.Dialect.FontStyle(_line.Style);
             var linePrintInfo = context.Report.Dialect.PrintStyle(_line.PrintStyle);
-            var lineAlignInfo = context.Report.Dialect.Align(_line.Align);
+            var lineAlignInfo = context.Report.Dialect.Align(_line.Alignment);
             foreach (var lineStr in lineBuilder.ToString().Split('\n')) {
 
                 result.Add(

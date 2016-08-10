@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace mReporterLib
 {
@@ -22,7 +23,7 @@ namespace mReporterLib
     }
 
     /// <summary>
-    /// Produces barcode
+    /// Prints barcode
     /// </summary>
     public class Barcode : ReportItem
     {
@@ -30,11 +31,8 @@ namespace mReporterLib
         public BarcodeHriFont HriFont { get; set; }
         public BarcodeHriPosition HriPosition { get; set; }
         public int Height { get; set; }
+        public int Width { get; set; }
         public BarcodeType BarcodeType { get; set; }
-        /// <summary>
-        /// This is only internal property for testing, do not use in production code
-        /// </summary>
-        public string BarcodeData { get { return _data; } set { this.SetData(value); } }
 
         public Barcode() : base(ReportItemType.UserDefined)
         {
@@ -42,6 +40,7 @@ namespace mReporterLib
             HriFont = BarcodeHriFont.B;
             HriPosition = BarcodeHriPosition.DoNotPrint;
             Height = 50;
+            Width = 3;
             BarcodeType = BarcodeType.CODE39;
         }
 
@@ -58,9 +57,11 @@ namespace mReporterLib
             }
             // height of the code
             sb.Append(context.CreateCode(29, 104, Math.Min(Height, 255)));
+            // width of the code
+            sb.Append(context.CreateCode(29, 119, Math.Min(Width, 6)));
             // and code itself
-            sb.Append(context.CreateCode(29, 107,(int)BarcodeType,_data.Length));
-            sb.Append(_data.ToCharArray());
+            sb.Append(context.CreateCode(29, 107, (int)BarcodeType, _data.Length));
+            sb.Append(_data);
 
             var line = context.AddToOutput(this, sb.ToString());
             line.AppendNewLine = false;
@@ -69,55 +70,60 @@ namespace mReporterLib
         }
 
         string _data = null;
-        public override void SetData(object data)
+        public override object Data
         {
-            _data = null;
-            string d = Convert.ToString(data);
-
-            switch (BarcodeType) {
-                case BarcodeType.UPC_A:
-                    if (CheckIntegerInput(d, 11, 12)) _data = d;
-                    break;
-                case BarcodeType.UPC_E:
-                    if (CheckIntegerInput(d, 11, 12)) _data = d;
-                    break;
-                case BarcodeType.EAN13:
-                    if (CheckIntegerInput(d, 12, 13)) _data = d;
-                    break;
-                case BarcodeType.EAN8:
-                    if (CheckIntegerInput(d, 7, 8)) _data = d;
-                    break;
-                case BarcodeType.CODE39:
-                    break;
-                case BarcodeType.ITF:
-                    if (CheckIntegerInput(d, 1, int.MaxValue)) {
-                        if (d.Length % 2 == 0) _data = d;
-                    }
-                    break;
-                case BarcodeType.CODABAR:
-                    break;
-                case BarcodeType.CODE93:
-                    break;
-                case BarcodeType.CODE128:
-                    break;
-                default:
-                    break;
+            get
+            {
+                return _data;
             }
 
+            set
+            {
+                _data = null;
+                string d = Convert.ToString(value);
+
+                switch (BarcodeType) {
+                    case BarcodeType.UPC_A:
+                        if (Barcode.UPC_A.Value.IsMatch(d)) _data = d;
+                        break;
+                    case BarcodeType.UPC_E:
+                        if (UPC_E.Value.IsMatch(d)) _data = d;
+                        break;
+                    case BarcodeType.EAN13:
+                        if (EAN13.Value.IsMatch(d)) _data = d;
+                        break;
+                    case BarcodeType.EAN8:
+                        if (EAN8.Value.IsMatch(d)) _data = d;
+                        break;
+                    case BarcodeType.CODE39:
+                        if (d.Length > 0 && d.Length < 256) if (CODE39.Value.IsMatch(d)) _data = d;
+                        break;
+                    case BarcodeType.ITF:
+                        if (d.Length > 1 && d.Length < 256) if (ITF.Value.IsMatch(d)) _data = d;
+                        break;
+                    case BarcodeType.CODABAR:
+                        if (d.Length > 0 && d.Length < 256) if (CODABAR.Value.IsMatch(d)) _data = d;
+                        break;
+                    case BarcodeType.CODE93:
+                        if (d.Length > 0 && d.Length < 256) if (CODE93.Value.IsMatch(d)) _data = d;
+                        break;
+                    case BarcodeType.CODE128:
+                        if (d.Length > 0 && d.Length < 256) if (CODE128.Value.IsMatch(d)) _data = d;
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
-        bool CheckIntegerInput(string data, int minLen, int maxLen)
-        {
-            bool result = false;
-            if (data.Length >= minLen && data.Length <= maxLen) result = true;
-
-            if (result) result = data.All(c => {
-                if (c >= 48 && c <= 57) return true;
-                return false;
-            });
-
-            return result;
-        }
-
+        static Lazy<Regex> UPC_A = new Lazy<Regex>(() => new Regex("^[0-9]{11,12}$", RegexOptions.Compiled));
+        static Lazy<Regex> UPC_E = new Lazy<Regex>(() => new Regex("^([0-9]{6,8}|[0-9]{11,12})$", RegexOptions.Compiled));
+        static Lazy<Regex> EAN13 = new Lazy<Regex>(() => new Regex("^[0-9]{12,13}$", RegexOptions.Compiled));
+        static Lazy<Regex> EAN8 = new Lazy<Regex>(() => new Regex("^[0-9]{7,8}$", RegexOptions.Compiled));
+        static Lazy<Regex> CODE39 = new Lazy<Regex>(() => new Regex(@"^([0-9A-Z \$\%\+\-\.\/]+|\*[0-9A-Z \$\%\+\-\.\/]+\*)$", RegexOptions.Compiled));
+        static Lazy<Regex> ITF = new Lazy<Regex>(() => new Regex("^([0-9]{2})+$", RegexOptions.Compiled));
+        static Lazy<Regex> CODABAR = new Lazy<Regex>(() => new Regex(@"^[A-Da-d][0-9\$\+\-\.\/\:]+[A-Da-d]$", RegexOptions.Compiled));
+        static Lazy<Regex> CODE93 = new Lazy<Regex>(() => new Regex(@"^[\\x00-\\x7F]+", RegexOptions.Compiled));
+        static Lazy<Regex> CODE128 = new Lazy<Regex>(() => new Regex(@"^\{[A-C][\\x00-\\x7F]+", RegexOptions.Compiled));
     }
 }

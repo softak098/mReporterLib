@@ -33,7 +33,7 @@ namespace mReporterLib
 
             ForAllReportItems((item, data) => {
 
-                if (data != null) item.SetData(data);
+                if (data != null) item.Data = data;
                 item.Render(context);
 
             });

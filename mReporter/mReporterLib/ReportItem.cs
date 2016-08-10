@@ -22,9 +22,9 @@ namespace mReporterLib
 
         public IEnumerable<object> DataSource { get; set; }
 
-        public object Data
+        public virtual object Data
         {
-            get; private set;
+            get; set;
         }
 
         public ReportItem(ReportItemType type)
@@ -39,14 +39,6 @@ namespace mReporterLib
             if (this.Items == null) this.Items = new List<ReportItem>();
             this.Items.Add(item);
             item.Parent = this;
-        }
-
-        /// <summary>
-        /// Sets any data for ReportItem object
-        /// </summary>
-        public virtual void SetData(object data)
-        {
-            this.Data = data;
         }
 
         /// <summary>

@@ -17,7 +17,7 @@ namespace mReporterLib.Tests
         public void ReportTest()
         {
 
-            Report rpt = new Report(new ESCPosDialect());
+            Report rpt = new Report(new ESCPosDialect(PrinterModel.ZJ5802));
             rpt.PageHeight = 0;
 
             rpt.AddItem(new NVLogo());
@@ -25,7 +25,7 @@ namespace mReporterLib.Tests
             rpt.AddItem(new Line(ReportItemType.ReportHeader) {
 
                 Template = "Hlavička stránky [1]",
-                Align = Align.Left
+                Alignment = Align.Left
 
             });
 
@@ -37,7 +37,7 @@ namespace mReporterLib.Tests
             masterDetailGroup.DataSource = ReceiptLineData.CreateData();
 
             masterDetailGroup.AddItem(new Line(ReportItemType.Header) {
-                Style = FontStyle.Inverse,
+                Style = FontStyle.Underline,
                 Template = "Product              Q         P"
 
             });
@@ -96,14 +96,14 @@ namespace mReporterLib.Tests
             // barcode line test
             var barcodeItem = new Barcode() {
                 BarcodeType = BarcodeType.ITF,
+                Data= "43657621",
             };
-
             rpt.AddItem(barcodeItem);
 
-            barcodeItem.SetData(43657621);
+            rpt.AddItem(new QRCode() { Data = "Pavlicek" });
 
-            rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN13, BarcodeData = "5032037076982" });
-            rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN8, BarcodeData = "5032370" });
+            //rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN13, BarcodeData = "5032037076982" });
+            //rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN8, BarcodeData = "5032370" });
 
 
             // finaly render and build output
@@ -135,7 +135,7 @@ namespace mReporterLib.Tests
             iData.CreateData();
 
 
-            Report rpt = new Report(new ESCPDialect());
+            Report rpt = new Report(new ESCPDialect(PrinterModel.EpsonGeneric));
             rpt.PageHeight = 66;
 
             rpt.AddItem(new Line(ReportItemType.ReportHeader) {
@@ -299,20 +299,7 @@ Jméno:                               Podpis:                                   
             //byte[] printData = Encoding.ASCII.GetBytes(pBuilder.Output);
             //RawPrinterHelper.SendToPrinter(@"\\SITTINGBULL3.local.nlm.cz\OKI MC562(PCL)", printData);
 
-            /*
-            Test Name:	EnumeratePrinters
-Test Outcome:	Passed
-Result StandardOutput:	
-Send To OneNote 2013
-POS58 10.0.0.6
-Microsoft XPS Document Writer
-Microsoft Print to PDF
-Fax
-\\SITTINGBULL3.local.nlm.cz\OKI MC562(PCL)
-\\ZBYNEK-PC\Xerox WorkCentre 6015B
-
-
-    */
+          
         }
 
         [TestMethod()]

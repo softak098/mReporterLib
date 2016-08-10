@@ -6,6 +6,22 @@ using System.Text;
 namespace mReporterLib
 {
 
+    public enum PrinterModel
+    {
+        /// <summary>
+        /// Generic Epson compatible printers with ESC/P support
+        /// </summary>
+        EpsonGeneric = 0,
+        /// <summary>
+        /// Epson TM-20 thermal (ESC/POS) + compatible printers
+        /// </summary>
+        EpsonTM20,
+        /// <summary>
+        /// OEM ZJ-5802 thermal printers + compatible devices
+        /// </summary>
+        ZJ5802
+    }
+
     public class EscCode
     {
         public string Start;
@@ -47,15 +63,23 @@ namespace mReporterLib
     /// </summary>
     public class PrinterDialect
     {
+        public PrinterModel PrinterModel { get; set; }
+
+        public PrinterDialect(PrinterModel model)
+        {
+            PrinterModel = model;
+        }
+
         public virtual EscCode FontStyle(FontStyle style) { return null; }
 
         public virtual EscCode Reset() { return new EscCode("\x1b@", null); }
 
         public virtual EscCode FormFeed() { return new EscCode("\x0C", null); }
         public virtual EscCode PrintStyle(PrintStyle style) { return null; }
-        public virtual EscCode Align(Align style) {
+        public virtual EscCode Align(Align style)
+        {
             switch (style) {
-                default:return null;
+                default: return null;
                 case mReporterLib.Align.Left: return new EscCode("\u001Ba0", null);
                 case mReporterLib.Align.Right: return new EscCode("\u001Ba2", null);
                 case mReporterLib.Align.Center: return new EscCode("\u001Ba1", null);
@@ -67,6 +91,10 @@ namespace mReporterLib
 
     public class ESCPDialect : PrinterDialect
     {
+        public ESCPDialect(PrinterModel model) : base(model)
+        {
+        }
+
         public override EscCode FontStyle(FontStyle style)
         {
             switch (style) {
@@ -84,7 +112,7 @@ namespace mReporterLib
         public override EscCode PrintStyle(PrintStyle style)
         {
             switch (style) {
-                case mReporterLib.PrintStyle.Pica:return new EscCode("\x1BP", null);
+                case mReporterLib.PrintStyle.Pica: return new EscCode("\x1BP", null);
                 case mReporterLib.PrintStyle.Elite:
                     return new EscCode("\x1BM", null);
                 case mReporterLib.PrintStyle.Condensed:
@@ -99,6 +127,10 @@ namespace mReporterLib
 
     public class ESCPosDialect : PrinterDialect
     {
+        public ESCPosDialect(PrinterModel model) : base(model)
+        {
+        }
+
         public override EscCode FontStyle(FontStyle style)
         {
             switch (style) {
