@@ -35,6 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExtraItems\Barcode.cs" />
+    <Compile Include="ExtraItems\EmptySpace.cs" />
     <Compile Include="ExtraItems\NVLogo.cs" />
     <Compile Include="ExtraItems\QRCode.cs" />
     <Compile Include="Group.cs" />

@@ -37,7 +37,7 @@ namespace mReporterLib.Tests
             masterDetailGroup.DataSource = ReceiptLineData.CreateData();
 
             masterDetailGroup.AddItem(new Line(ReportItemType.Header) {
-                Style = FontStyle.Underline,
+                Style = FontStyle.Inverse,
                 Template = "Product              Q         P"
 
             });
@@ -100,7 +100,11 @@ namespace mReporterLib.Tests
             };
             rpt.AddItem(barcodeItem);
 
+            rpt.AddItem(new EmptySpace(EmptySpaceType.Dot, 15));
+
             rpt.AddItem(new QRCode() { Data = "Pavlicek" });
+
+            rpt.AddItem(new EmptySpace(EmptySpaceType.Line,2));
 
             //rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN13, BarcodeData = "5032037076982" });
             //rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN8, BarcodeData = "5032370" });
