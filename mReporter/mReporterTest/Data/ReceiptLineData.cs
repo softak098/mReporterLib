@@ -21,7 +21,7 @@ namespace mReporterTest.Data
         {
             List<ReceiptLineData> result = new List<ReceiptLineData>();
 
-            for (int i = 0; i < 16; i++) {
+            for (int i = 0; i < 5; i++) {
 
                 result.Add(new ReceiptLineData {
                     ProductName = "Bread " + i,

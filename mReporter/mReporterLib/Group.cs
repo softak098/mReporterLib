@@ -9,7 +9,7 @@ namespace mReporterLib
     public delegate IEnumerable<TDataSource> GetDataSourceHandler<TDataSource>() where TDataSource : class;
 
     /// <summary>
-    /// Rpresents functional group of header, data and footer with associated data source. It can be nested in other group also.
+    /// Represents functional group of header, data and footer with associated data source. It can be nested in other group also.
     /// </summary>
     public class Group<TDataSource> : ReportItem
         where TDataSource : class

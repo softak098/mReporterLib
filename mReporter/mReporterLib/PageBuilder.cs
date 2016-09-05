@@ -197,11 +197,13 @@ namespace mReporterLib
             _output.Replace(TOTAL_PAGE_NUMBER_PLACEHOLDER, CurrentPage.ToString().PadLeft(2));
         }
 
-        void AddToOutput(List<string> lines, int from, int count = int.MaxValue, bool addNewLine = true)
+        void AddToOutput(List<string> lines, int from, int count = int.MaxValue, bool addNewLine=true)
         {
             count = Math.Min(count, lines.Count - from);
             for (int i = 0; i < count; i++) {
-                if (addNewLine) _output.AppendLine(lines[i + from]);
+                if (addNewLine) {
+                    _output.AppendLine(lines[i + from]);
+                }
                 else {
                     _output.Append(lines[i + from]);
                 }

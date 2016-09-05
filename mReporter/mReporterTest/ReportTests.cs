@@ -20,7 +20,7 @@ namespace mReporterLib.Tests
             Report rpt = new Report(new ESCPosDialect(PrinterModel.ZJ5802));
             rpt.PageHeight = 0;
 
-            rpt.AddItem(new NVLogo());
+            //rpt.AddItem(new NVLogo());
 
             rpt.AddItem(new Line(ReportItemType.ReportHeader) {
 
@@ -98,13 +98,32 @@ namespace mReporterLib.Tests
                 BarcodeType = BarcodeType.ITF,
                 Data= "43657621",
             };
-            rpt.AddItem(barcodeItem);
+            //rpt.AddItem(barcodeItem);
 
             rpt.AddItem(new EmptySpace(EmptySpaceType.Dot, 15));
 
-            rpt.AddItem(new QRCode() { Data = "Pavlicek" });
+            //rpt.AddItem(new QRCode() { Data = "www.hradboskovice.cz" });
 
-            rpt.AddItem(new EmptySpace(EmptySpaceType.Line,2));
+
+            rpt.AddItem(new Line(ReportItemType.Footer) {
+                 Alignment= Align.Center,
+                 RepeatStaticItems=true,
+                  
+                Template = "╔═══════════════════════╗\n| _____________________ \u2524",
+                GetData = e => {
+
+                    if (e.Index == 0) {
+                        e.Result.Value = "Dekujeme a tesime se na Vasi dalsi navstevu.";
+                        e.Result.WordWrap = true;
+                        e.Result.Alignment = Align.Center;
+                    }
+
+                }
+
+            });
+
+            rpt.AddItem(new EmptySpace(EmptySpaceType.Line, 2));
+
 
             //rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN13, BarcodeData = "5032037076982" });
             //rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN8, BarcodeData = "5032370" });

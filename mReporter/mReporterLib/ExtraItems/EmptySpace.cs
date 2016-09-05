@@ -27,10 +27,10 @@ namespace mReporterLib
             string r;
 
             if (_spaceType == EmptySpaceType.Line) {
-                r = new string(context.CreateCode(27, 100, _space));
+                r = new string(RenderContext.CreateCode(27, 100, _space));
             }
             else {
-                r = new string(context.CreateCode(27, 74, _space));
+                r = new string(RenderContext.CreateCode(27, 74, _space));
             }
 
             var line = context.AddToOutput(this, r);

@@ -51,7 +51,7 @@ namespace mReporterLib
         /// <summary>
         /// Helper method to simplify creation of code sequences
         /// </summary>
-        internal char[] CreateCode(params int[] codes)
+        internal static char[] CreateCode(params int[] codes)
         {
             var result = new char[codes.Length];
             for (int i = 0; i < codes.Length; i++) result[i] = (char)codes[i];

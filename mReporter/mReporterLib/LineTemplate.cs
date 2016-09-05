@@ -214,7 +214,7 @@ namespace mReporterLib
             foreach (var lineStr in lineBuilder.ToString().Split('\n')) {
 
                 result.Add(
-                    lineStr.Trim('\r', '\n').ApplyEscCode(lineAlignInfo,  linePrintInfo, lineStyleInfo)
+                    lineStr.Trim('\r', '\n').ApplyEscCode(lineAlignInfo, linePrintInfo, lineStyleInfo)
                     );
             }
             return result;
@@ -269,7 +269,7 @@ namespace mReporterLib
             }
             else if (alignment == Align.Center) {
                 int l = (width - s.Length) / 2;
-                string r = s.PadRight(l); //  string.Concat(new string(' ', l), s);
+                string r = s.PadRight(width - l); //  string.Concat(new string(' ', l), s);
                 return r.PadLeft(width); //  string.Concat(r, new string(' ', width - r.Length));
             }
 

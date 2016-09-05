@@ -17,7 +17,7 @@ namespace mReporterLib
         public OutputLine Parent { get; private set; }
         public ReportItem SourceReportItem { get; set; }
         /// <summary>
-        /// Controls if output builder inserts CRLF characters after the line, Default=TRUE
+        /// Controls if output builder inserts LF character after the line, Default=TRUE
         /// </summary>
         public bool AppendNewLine { get; set; }
 
