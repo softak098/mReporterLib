@@ -201,7 +201,8 @@ namespace mReporterLib
 
                         if (applyStyle) {
                             var styleInfo = context.Report.Dialect.FontStyle(valueData.Style);
-                            lineBuilder.Append(styleInfo.ApplyEscCode(nextLineValue));
+                            if (styleInfo != null) lineBuilder.Append(styleInfo.Apply(nextLineValue));
+                            else lineBuilder.Append(nextLineValue);
                         }
                         else lineBuilder.Append(nextLineValue);
                     }

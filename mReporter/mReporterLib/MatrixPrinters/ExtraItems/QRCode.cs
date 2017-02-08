@@ -36,22 +36,22 @@ namespace mReporterLib
 
             StringBuilder sb = new StringBuilder();
 
-            if (context.Report.Dialect.PrinterModel == PrinterModel.EpsonTM20) {
-                sb.Append(RenderContext.CreateCode(29, 40, 107, 4, 0, 49, 65, (int)Model, 0));
-                sb.Append(RenderContext.CreateCode(29, 40, 107, 3, 0, 49, 67, Size));
-                sb.Append(RenderContext.CreateCode(29, 40, 107, 3, 0, 49, 69, (int)ErrorCorrectionLevel));
+            if (context.Report.Dialect.PrinterModel == PrinterModel.EpsonPosGeneric) {
+                sb.Append(EscCode.CreateCode(29, 40, 107, 4, 0, 49, 65, (int)Model, 0));
+                sb.Append(EscCode.CreateCode(29, 40, 107, 3, 0, 49, 67, Size));
+                sb.Append(EscCode.CreateCode(29, 40, 107, 3, 0, 49, 69, (int)ErrorCorrectionLevel));
 
                 // prepare data
                 int pH = _data.Length / 256, pL = _data.Length % 256;
-                sb.Append(RenderContext.CreateCode(29, 40, 107, pL, pH, 49, 80, 48));
+                sb.Append(EscCode.CreateCode(29, 40, 107, pL, pH, 49, 80, 48));
                 sb.Append(_data);
                 // and print 
-                sb.Append(RenderContext.CreateCode(29, 40, 107, 3, 0, 49, 81, 48));
+                sb.Append(EscCode.CreateCode(29, 40, 107, 3, 0, 49, 81, 48));
             }
             else if (context.Report.Dialect.PrinterModel == PrinterModel.ZJ5802) {
 
                 int pH = _data.Length / 256, pL = _data.Length % 256;
-                sb.Append(RenderContext.CreateCode(27, 90, 0, (int)ErrorCorrectionLevel - 48, Size, pL, pH));
+                sb.Append(EscCode.CreateCode(27, 90, 0, (int)ErrorCorrectionLevel - 48, Size, pL, pH));
                 sb.Append(_data);
 
             }

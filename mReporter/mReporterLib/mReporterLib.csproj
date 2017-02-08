@@ -34,25 +34,31 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExtraItems\Barcode.cs" />
-    <Compile Include="ExtraItems\EmptySpace.cs" />
-    <Compile Include="ExtraItems\LineSpacing.cs" />
-    <Compile Include="ExtraItems\NVLogo.cs" />
-    <Compile Include="ExtraItems\QRCode.cs" />
-    <Compile Include="Group.cs" />
-    <Compile Include="Line.cs" />
-    <Compile Include="LineTemplate.cs" />
-    <Compile Include="OutputLine.cs" />
-    <Compile Include="PageBuilder.cs" />
-    <Compile Include="PrinterDialect.cs" />
+    <Compile Include="LabelPrinters\Enums.cs" />
+    <Compile Include="LabelPrinters\HelperTypes.cs" />
+    <Compile Include="LabelPrinters\Instructions.cs" />
+    <Compile Include="MatrixPrinters\ExtraItems\Barcode.cs" />
+    <Compile Include="MatrixPrinters\ExtraItems\CutPaper.cs" />
+    <Compile Include="MatrixPrinters\ExtraItems\EmptySpace.cs" />
+    <Compile Include="MatrixPrinters\ExtraItems\LineSpacing.cs" />
+    <Compile Include="MatrixPrinters\ExtraItems\NVLogo.cs" />
+    <Compile Include="MatrixPrinters\ExtraItems\QRCode.cs" />
+    <Compile Include="MatrixPrinters\Group.cs" />
+    <Compile Include="LabelPrinters\Label.cs" />
+    <Compile Include="MatrixPrinters\Line.cs" />
+    <Compile Include="MatrixPrinters\LineTemplate.cs" />
+    <Compile Include="MatrixPrinters\OutputLine.cs" />
+    <Compile Include="MatrixPrinters\PageBuilder.cs" />
+    <Compile Include="MatrixPrinters\PrinterDialect.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RawPrinterHelper.cs" />
-    <Compile Include="RenderContext.cs" />
-    <Compile Include="Report.cs" />
-    <Compile Include="ReportItem.cs" />
-    <Compile Include="ReportItemAttributes.cs" />
-    <Compile Include="ReportItemType.cs" />
+    <Compile Include="MatrixPrinters\RawPrinterHelper.cs" />
+    <Compile Include="MatrixPrinters\RenderContext.cs" />
+    <Compile Include="MatrixPrinters\Report.cs" />
+    <Compile Include="MatrixPrinters\ReportItem.cs" />
+    <Compile Include="MatrixPrinters\ReportItemAttributes.cs" />
+    <Compile Include="MatrixPrinters\ReportItemType.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

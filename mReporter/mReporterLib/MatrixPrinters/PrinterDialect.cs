@@ -13,9 +13,9 @@ namespace mReporterLib
         /// </summary>
         EpsonGeneric = 0,
         /// <summary>
-        /// Epson TM-20 thermal (ESC/POS) + compatible printers
+        /// Epson ESC/POS + compatible printers
         /// </summary>
-        EpsonTM20,
+        EpsonPosGeneric,
         /// <summary>
         /// OEM ZJ-5802 thermal printers + compatible devices
         /// </summary>
@@ -36,15 +36,33 @@ namespace mReporterLib
         {
             return string.Concat(Start ?? "", source, End ?? "");
         }
+
+        public string Apply(EscCode code)
+        {
+            return this.Apply(code.Start ?? "" + code.End ?? "");
+        }
+
+        public string Apply(params int[] codes)
+        {
+            var code = CreateCode(codes);
+            return Apply(code);
+        }
+
+        internal static EscCode CreateCode(params int[] codes)
+        {
+            var result = new char[codes.Length];
+            for (int i = 0; i < codes.Length; i++) result[i] = (char)codes[i];
+            return new EscCode(new string(result), null);
+        }
+
+        public override string ToString()
+        {
+            return string.Concat(Start ?? "", End ?? "");
+        }
     }
 
     public static class SequenceExtensions
     {
-        public static string ApplyEscCode(this EscCode s, string value)
-        {
-            if (s == null) return value;
-            return s.Apply(value);
-        }
 
         public static string ApplyEscCode(this string s, params EscCode[] seq)
         {

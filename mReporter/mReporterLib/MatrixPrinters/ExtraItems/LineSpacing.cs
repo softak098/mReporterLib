@@ -25,10 +25,10 @@ namespace mReporterLib
             OutputLine l;
             if (LineSpace == 0) {
 
-                l = context.AddToOutput(this, RenderContext.CreateCode(27, 50).ToString());
+                l = context.AddToOutput(this, EscCode.CreateCode(27, 50));
             }
             else {
-                l = context.AddToOutput(this, RenderContext.CreateCode(27, 51, LineSpace).ToString());
+                l = context.AddToOutput(this, EscCode.CreateCode(27, 51, LineSpace));
 
             }
             l.AppendNewLine = false;

@@ -52,15 +52,15 @@ namespace mReporterLib
             sb.Append(context.Report.Dialect.Align(this.Alignment).Start);
 
             if (HriPosition != BarcodeHriPosition.DoNotPrint) {
-                sb.Append(RenderContext.CreateCode(29, 102, (int)HriFont));
-                sb.Append(RenderContext.CreateCode(29, 72, (int)HriPosition));
+                sb.Append(EscCode.CreateCode(29, 102, (int)HriFont));
+                sb.Append(EscCode.CreateCode(29, 72, (int)HriPosition));
             }
             // height of the code
-            sb.Append(RenderContext.CreateCode(29, 104, Math.Min(Height, 255)));
+            sb.Append(EscCode.CreateCode(29, 104, Math.Min(Height, 255)));
             // width of the code
-            sb.Append(RenderContext.CreateCode(29, 119, Math.Min(Width, 6)));
+            sb.Append(EscCode.CreateCode(29, 119, Math.Min(Width, 6)));
             // and code itself
-            sb.Append(RenderContext.CreateCode(29, 107, (int)BarcodeType, _data.Length));
+            sb.Append(EscCode.CreateCode(29, 107, (int)BarcodeType, _data.Length));
             sb.Append(_data);
 
             var line = context.AddToOutput(this, sb.ToString());

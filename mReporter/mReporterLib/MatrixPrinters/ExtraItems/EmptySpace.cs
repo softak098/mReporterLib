@@ -24,13 +24,13 @@ namespace mReporterLib
 
         public override OutputLine Render(RenderContext context)
         {
-            string r;
+            EscCode r;
 
             if (_spaceType == EmptySpaceType.Line) {
-                r = new string(RenderContext.CreateCode(27, 100, _space));
+                r = EscCode.CreateCode(27, 100, _space);
             }
             else {
-                r = new string(RenderContext.CreateCode(27, 74, _space));
+                r = EscCode.CreateCode(27, 74, _space);
             }
 
             var line = context.AddToOutput(this, r);

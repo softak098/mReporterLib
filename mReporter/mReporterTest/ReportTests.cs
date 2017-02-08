@@ -17,7 +17,7 @@ namespace mReporterLib.Tests
         public void ReportTest()
         {
 
-            Report rpt = new Report(new ESCPosDialect(PrinterModel.ZJ5802));
+            Report rpt = new Report(new ESCPosDialect(PrinterModel.EpsonPosGeneric));
             rpt.PageHeight = 0;
 
             //rpt.AddItem(new NVLogo());
@@ -123,7 +123,7 @@ namespace mReporterLib.Tests
             });
 
             rpt.AddItem(new EmptySpace(EmptySpaceType.Line, 2));
-
+            rpt.AddItem(new CutPaper());
 
             //rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN13, BarcodeData = "5032037076982" });
             //rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN8, BarcodeData = "5032370" });
@@ -147,7 +147,12 @@ namespace mReporterLib.Tests
 
             byte[] data = Encoding.GetEncoding(852).GetBytes(pBuilder.Output);
 
-            RawPrinterHelper.SendToPrinter("POS-58", data);
+            //RawPrinterHelper.SendToPrinter("POS-58", data);
+
+
+            //byte[] printData = Encoding.ASCII.GetBytes(pBuilder.Output);
+            //RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
+
 
         }
 
@@ -319,10 +324,11 @@ Jméno:                               Podpis:                                   
                 }
             }
 
-            //byte[] printData = Encoding.ASCII.GetBytes(pBuilder.Output);
-            //RawPrinterHelper.SendToPrinter(@"\\SITTINGBULL3.local.nlm.cz\OKI MC562(PCL)", printData);
+            /*
+            byte[] printData = Encoding.ASCII.GetBytes(pBuilder.Output);
+            RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", printData);
+            */
 
-          
         }
 
         [TestMethod()]

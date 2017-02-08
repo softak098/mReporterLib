@@ -43,22 +43,19 @@ namespace mReporterLib
             return oLine;
         }
 
+        internal OutputLine AddToOutput(ReportItem item, EscCode code)
+        {
+            var oLine = new OutputLine(_currentOutputLine, item, code.ToString());
+            _outputLines.Add(oLine);
+            return oLine;
+        }
+
+
         internal void SetOutputParent(OutputLine newOutputParent)
         {
             _currentOutputLine = newOutputParent;
         }
 
-        /// <summary>
-        /// Helper method to simplify creation of code sequences
-        /// </summary>
-        internal static char[] CreateCode(params int[] codes)
-        {
-            var result = new char[codes.Length];
-            for (int i = 0; i < codes.Length; i++) result[i] = (char)codes[i];
-            return result;
-        }
-
-
-    }
+      }
 
 }
