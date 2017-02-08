@@ -15,7 +15,6 @@ namespace mReporterLib
             var l=context.AddToOutput(this, EscCode.CreateCode(29, 86, 0));
             l.AppendNewLine = false;
             return l;
-
         }
     }
 }

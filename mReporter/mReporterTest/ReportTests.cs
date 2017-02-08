@@ -13,6 +13,67 @@ namespace mReporterLib.Tests
     [TestClass()]
     public class ReportTests
     {
+
+        [TestMethod()]
+        public void EetRevenueTest()
+        {
+
+            Report rpt = new Report(new ESCPosDialect(PrinterModel.EpsonPosGeneric));
+            rpt.PageHeight = 0;
+
+            rpt.AddItem(new Line(ReportItemType.ReportFooter) {
+
+                Template = "BKP: ___________________________________",
+                GetData = e => {
+
+                    e.Result.Value = "F10835FD-664E9E38-07111A35-FE053C13-E5C63B25";
+                    e.Result.WordWrap = true;
+                }
+
+            });
+
+            rpt.AddItem(new Line(ReportItemType.ReportFooter) {
+
+                Template = "PKP: ___________________________________",
+                GetData = e => {
+
+                    e.Result.Value = "BPNsyN3auTjXF8KAlxYvwnLBW8z9WQil8Ur4dY11jUH+54MW+bd6gm5Lpwlt+b0hrctUVnNMhcPBhYXG21v9pahhS7K9eLcrCq+kUL9JowKjxRyBELTcAebuOusc1PAoTbndJBQBvGlpdIbz1oQIk3H2ARoxHCJzIwrpKmD8EVrkzOohWdA/HSD9GGleBRuQxvX0zzCoupYP0fos+DJk7abxOyZxL1fl0+XnhtBvO+BBeomXMANModOSZZXuPZlWegrTDAYtGtpDRBC5INj309GdzP+8PWKlsohKoL7cEi55Dz+Gytj0keyTi1w3028sEHistxH+ZZX+lbQ6+9aUhQ==";
+                    e.Result.WordWrap = true;
+
+                }
+
+            });
+
+            rpt.AddItem(new Line(ReportItemType.ReportFooter) {
+
+                Template = "FIK: ___________________________________",
+                GetData = e => {
+
+                    e.Result.Value = "2dd0fa0c-ce5b-44ad-8222-a99d26a0b1b8-ff";
+                    e.Result.WordWrap = true;
+
+                }
+
+            });
+
+            // finaly render and build output
+            var rContext = rpt.Render();
+            var pBuilder = rpt.BuildPages(rContext);
+
+            using (var fs = new FileStream(@"C:\TEMP\dataEet.prn", FileMode.Create)) {
+                using (var sw = new StreamWriter(fs, Encoding.ASCII)) {
+                    sw.Write(pBuilder.Output);
+                    sw.Close();
+                }
+            }
+
+            /*
+            var printer = new SerialPrinter(pBuilder.Output, Encoding.ASCII);
+            printer.Print("COM9");
+            */
+        }
+
+
         [TestMethod()]
         public void ReportTest()
         {
@@ -294,7 +355,9 @@ Jméno:                               Podpis:                                   
                     var d = e.Data as Batch;
 
                     if (e.Index == 0) {
-                        e.Result.Value = string.Concat(d.Name, " (", d.Code, ")");
+                        //e.Result.Value = string.Concat(d.Name, " (", d.Code, ")");
+                        e.Result.Value = new string('X', 100);
+                        e.Result.WordWrap = true;
                     }
                     else if (e.Index == 1) {
 
