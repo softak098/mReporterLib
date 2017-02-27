@@ -51,10 +51,9 @@ namespace mReporterLib
             StringBuilder sb = new StringBuilder();
             sb.Append(context.Report.Dialect.Align(this.Alignment).Start);
 
-            if (HriPosition != BarcodeHriPosition.DoNotPrint) {
-                sb.Append(EscCode.CreateCode(29, 102, (int)HriFont));
-                sb.Append(EscCode.CreateCode(29, 72, (int)HriPosition));
-            }
+            // hri characters
+            sb.Append(EscCode.CreateCode(29, 102, (int)HriFont));
+            sb.Append(EscCode.CreateCode(29, 72, (int)HriPosition));
             // height of the code
             sb.Append(EscCode.CreateCode(29, 104, Math.Min(Height, 255)));
             // width of the code

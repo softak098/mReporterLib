@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace mReporterLib.Tests
+namespace mReporterTest
 {
     [TestClass()]
     public class ReportTests
@@ -71,6 +71,14 @@ namespace mReporterLib.Tests
             var printer = new SerialPrinter(pBuilder.Output, Encoding.ASCII);
             printer.Print("COM9");
             */
+
+            byte[] data = Encoding.GetEncoding(852).GetBytes(pBuilder.Output);
+
+            //RawPrinterHelper.SendToPrinter("POS-58", data);
+
+
+            //byte[] printData = Encoding.ASCII.GetBytes(pBuilder.Output);
+            RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
         }
 
 
@@ -81,7 +89,11 @@ namespace mReporterLib.Tests
             Report rpt = new Report(new ESCPosDialect(PrinterModel.EpsonPosGeneric));
             rpt.PageHeight = 0;
 
+            rpt.AddItem(new CodePage(18));
+            rpt.AddItem(new LineSpacing(0));
+
             //rpt.AddItem(new NVLogo());
+            rpt.AddItem(new NVLogo(1, NVLogoSize.Normal));
 
             rpt.AddItem(new Line(ReportItemType.ReportHeader) {
 
@@ -159,22 +171,26 @@ namespace mReporterLib.Tests
                 BarcodeType = BarcodeType.ITF,
                 Data= "43657621",
             };
-            //rpt.AddItem(barcodeItem);
+            rpt.AddItem(barcodeItem);
 
             rpt.AddItem(new EmptySpace(EmptySpaceType.Dot, 15));
 
             //rpt.AddItem(new QRCode() { Data = "www.hradboskovice.cz" });
 
+            rpt.AddItem(new Line(ReportItemType.Footer) {
+                 Alignment= Align.Right,
+                Template = "╔═══════════════════════╗"
+            });
 
             rpt.AddItem(new Line(ReportItemType.Footer) {
-                 Alignment= Align.Center,
-                 RepeatStaticItems=true,
-                  
-                Template = "╔═══════════════════════╗\n| _____________________ \u2524",
+                Alignment = Align.Right,
+                RepeatStaticItems = true,
+
+                Template = "| _____________________ \u2524",
                 GetData = e => {
 
                     if (e.Index == 0) {
-                        e.Result.Value = "Dekujeme a tesime se na Vasi dalsi navstevu.";
+                        e.Result.Value = "Děkujeme a těšíme se na Vaši další návštěvu.";
                         e.Result.WordWrap = true;
                         e.Result.Alignment = Align.Center;
                     }
@@ -182,13 +198,19 @@ namespace mReporterLib.Tests
                 }
 
             });
+            rpt.AddItem(new Line(ReportItemType.Footer) {
+                Alignment = Align.Right,
+                Template = "-═══════════════════════-"
+            });
 
-            rpt.AddItem(new EmptySpace(EmptySpaceType.Line, 2));
-            rpt.AddItem(new CutPaper());
 
-            //rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN13, BarcodeData = "5032037076982" });
-            //rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN8, BarcodeData = "5032370" });
+            rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN13, Data = "5032037076982", HriPosition= BarcodeHriPosition.Bellow });
+            rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN8, Data = "5032370" });
 
+            rpt.AddItem(new NVLogo(3, NVLogoSize.Normal) { LogoAlign = Align.Right });
+
+            //rpt.AddItem(new EmptySpace(EmptySpaceType.Line, 4));
+            //rpt.AddItem(new CutPaper());
 
             // finaly render and build output
             var rContext = rpt.Render();
@@ -200,6 +222,7 @@ namespace mReporterLib.Tests
                     sw.Close();
                 }
             }
+
 
             /*
             var printer = new SerialPrinter(pBuilder.Output, Encoding.ASCII);
@@ -214,8 +237,34 @@ namespace mReporterLib.Tests
             //byte[] printData = Encoding.ASCII.GetBytes(pBuilder.Output);
             //RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
 
+            /*
+            MobileLPR.LprJob job = new MobileLPR.LprJob();
+            job.SetPrinterURI("lpr://10.255.11.19/lpt1");
+            job.AddDataFile(data);
 
+            job.SubmitJob();
+            job.WaitForCompletion();
+            */
+            //LPDPrinterHelper helper = new LPDPrinterHelper("10.255.11.19", "lpd1");
+            //helper.LPR(data);
+
+            // usbprn:Star TSP600 Cutter (TSP643)
         }
+
+        [TestMethod()]
+        public void SendRaw()
+        {
+            /*
+
+            MobileLPR.LprJob job = new MobileLPR.LprJob();
+            job.SetPrinterURI("lpr://10.255.11.19/lpt1");
+            //job.AddDataFile(@"C:\TEMP\SP600-LOGO.prn");
+
+            job.SubmitJob();
+            job.WaitForCompletion();
+            */
+        }
+
 
         [TestMethod()]
         public void ComplexReportTest()

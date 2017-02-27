@@ -38,6 +38,7 @@
     <Compile Include="LabelPrinters\HelperTypes.cs" />
     <Compile Include="LabelPrinters\Instructions.cs" />
     <Compile Include="MatrixPrinters\ExtraItems\Barcode.cs" />
+    <Compile Include="MatrixPrinters\ExtraItems\CodePage.cs" />
     <Compile Include="MatrixPrinters\ExtraItems\CutPaper.cs" />
     <Compile Include="MatrixPrinters\ExtraItems\EmptySpace.cs" />
     <Compile Include="MatrixPrinters\ExtraItems\LineSpacing.cs" />

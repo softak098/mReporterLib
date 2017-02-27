@@ -11,11 +11,11 @@ namespace mReporterLib
     public class LineSpacing : ReportItem
     {
         /// <summary>
-        /// 0 = default
+        /// NULL = default
         /// </summary>
-        public byte LineSpace;
+        public byte? LineSpace;
 
-        public LineSpacing(byte lineSpace) : base(ReportItemType.UserDefined)
+        public LineSpacing(byte? lineSpace) : base(ReportItemType.UserDefined)
         {
             this.LineSpace = lineSpace;
         }
@@ -23,12 +23,12 @@ namespace mReporterLib
         public override OutputLine Render(RenderContext context)
         {
             OutputLine l;
-            if (LineSpace == 0) {
+            if (LineSpace == null) {
 
                 l = context.AddToOutput(this, EscCode.CreateCode(27, 50));
             }
             else {
-                l = context.AddToOutput(this, EscCode.CreateCode(27, 51, LineSpace));
+                l = context.AddToOutput(this, EscCode.CreateCode(27, 51, LineSpace.Value));
 
             }
             l.AppendNewLine = false;
