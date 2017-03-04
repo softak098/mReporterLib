@@ -87,7 +87,7 @@ namespace mReporterTest
             rpt.TextEncoding = Encoding.GetEncoding(852);
 
             rpt.AddItem(new CodePage(18));
-            rpt.AddItem(new LineSpacing(0));
+            //rpt.AddItem(new LineSpacing(0));
 
             //rpt.AddItem(new NVLogo());
             rpt.AddItem(new NVLogo(1, NVLogoSize.Normal));
@@ -205,6 +205,8 @@ namespace mReporterTest
             rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN8, Data = "5032370" });
 
             rpt.AddItem(new NVLogo(3, NVLogoSize.Normal) { LogoAlign = Align.Right });
+
+            rpt.AddItem(new Image(@"E:\IMAGES\_vyrd11_54rozmery.jpg"));
 
             //rpt.AddItem(new EmptySpace(EmptySpaceType.Line, 4));
             //rpt.AddItem(new CutPaper());

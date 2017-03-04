@@ -4,15 +4,21 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace mReporterLib.MatrixPrinters.Output
+namespace mReporterLib
 {
 
     public class BinaryData : OutputElement
     {
+        private MemoryStream _stream;
+
+        public BinaryData(MemoryStream ms)
+        {
+            this._stream = ms;
+        }
 
         public override void WriteTo(Stream stream, Encoding textEncoding)
         {
-            throw new NotImplementedException();
+            _stream?.WriteTo(stream);
         }
 
     }

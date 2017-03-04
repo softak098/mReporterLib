@@ -33,6 +33,8 @@ namespace mReporterLib
         static readonly EscCode _alignCenter = new EscCode(27, (byte)'a', (byte)'1');
         static readonly EscCode _alignJustify = new EscCode(27, (byte)'a', (byte)'3');
 
+        static readonly EscCode _lineFeed = new EscCode(10);
+
         public PrinterModel PrinterModel { get; set; }
 
         public PrinterDialect(PrinterModel model)
@@ -45,6 +47,8 @@ namespace mReporterLib
         public virtual EscCode Reset() { return new EscCode(27, (byte)'@'); }
 
         public virtual EscCode FormFeed() { return new EscCode(12); }
+        public virtual EscCode LineFeed => _lineFeed;
+
         public virtual EscCodePair PrintStyle(PrintStyle style) { return null; }
         public virtual EscCode Align(Align style)
         {
