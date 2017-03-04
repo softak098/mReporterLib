@@ -16,13 +16,43 @@ namespace mReporterLib
         public Image(string fileName) : base(ReportItemType.UserDefined)
         {
 
-            _data = GetBitmapData(fileName);
+            _data = GetColumnFormatData(fileName);
 
         }
 
         public override void Render(RenderContext context)
         {
+            //PrintColumnData(context);
+            PrintRasterData(context);
+        }
 
+        void PrintRasterData(RenderContext context)
+        {
+            int yH = _data.Height / 256, yL = _data.Height % 256;
+            int xH = _data.Width / 8 / 256, xL = _data.Width / 8 % 256;
+            context.AddToOutput(this, new EscCode(29, 118, 48, 0, (byte)xL, (byte)xH, (byte)yL, (byte)yH));
+
+            MemoryStream ms = new MemoryStream(_data.Height * (_data.Width / 8));
+
+            int offset = 0;
+            for (var h = 0; h < _data.Height; h++) {
+
+                for (var w = 0; w < _data.Width; w += 8) {
+                    byte slice = 0;
+                    for (var k = 0; k < 8; k++) {
+                        slice |= (byte)((_data.Dots[offset + w + k] ? 1 : 0) << (7 - k));
+                    }
+
+                    ms.WriteByte(slice);
+                }
+                offset += _data.Width;
+            }
+
+            context.AddToOutput(this, new BinaryData(ms));
+        }
+
+        private void PrintColumnData(RenderContext context)
+        {
             int offset = 0;
             while (offset < _data.Height) {
 
@@ -85,7 +115,7 @@ namespace mReporterLib
                 //context.AddToOutput(this, context.Report.Dialect.LineFeed);
                 context.AddToOutput(this, new EscCode(27, 74, 0));
 
-//                bw.Write(AsciiControlChars.Newline);
+                //                bw.Write(AsciiControlChars.Newline);
 
             }
         }
@@ -97,31 +127,37 @@ namespace mReporterLib
             internal int Height;
         }
 
-        private static _BitmapData GetBitmapData(string bmpFileName)
+        private static _BitmapData GetColumnFormatData(string bmpFileName)
         {
             using (var bitmap = (Bitmap)System.Drawing.Image.FromFile(bmpFileName)) {
                 var threshold = 127;
                 var index = 0;
-                var dimensions = bitmap.Width * bitmap.Height;
-                var dots = new BitArray(dimensions);
+
+                var extWidth = bitmap.Width - bitmap.Width % 8 + 8;
+                var dots = new BitArray(extWidth * bitmap.Height);
 
                 for (var y = 0; y < bitmap.Height; y++) {
-                    for (var x = 0; x < bitmap.Width; x++) {
-                        var color = bitmap.GetPixel(x, y);
-                        var luminance = (int)(color.R * 0.3 + color.G * 0.59 + color.B * 0.11);
-                        dots[index] = (luminance < threshold);
-                        index++;
+                    for (var x = 0; x < extWidth; x++) {
+                        if (x >= bitmap.Width) dots[index++] = false;
+                        else {
+                            var color = bitmap.GetPixel(x, y);
+                            var luminance = (int)(color.R * 0.3 + color.G * 0.59 + color.B * 0.11);
+                            dots[index] = (luminance < threshold);
+                            index++;
+                        }
                     }
                 }
 
                 return new _BitmapData() {
                     Dots = dots,
                     Height = bitmap.Height,
-                    Width = bitmap.Width
+                    Width = extWidth
                 };
 
             }
 
         }
+
+
     }
 }

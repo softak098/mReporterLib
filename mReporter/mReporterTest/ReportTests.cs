@@ -173,7 +173,7 @@ namespace mReporterTest
             rpt.AddItem(new EmptySpace(EmptySpaceType.Dot, 15));
 
             //rpt.AddItem(new QRCode() { Data = "www.hradboskovice.cz" });
-
+            /*
             rpt.AddItem(new Line(ReportItemType.Footer) {
                  Alignment= Align.Right,
                 Template = "╔═══════════════════════╗"
@@ -199,12 +199,14 @@ namespace mReporterTest
                 Alignment = Align.Right,
                 Template = "-═══════════════════════-"
             });
+            */
 
-
+            /*
             rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN13, Data = "5032037076982", HriPosition= BarcodeHriPosition.Bellow });
             rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN8, Data = "5032370" });
 
             rpt.AddItem(new NVLogo(3, NVLogoSize.Normal) { LogoAlign = Align.Right });
+            */
 
             rpt.AddItem(new Image(@"E:\IMAGES\_vyrd11_54rozmery.jpg"));
 
@@ -223,7 +225,7 @@ namespace mReporterTest
 
 
             var data = pBuilder.OutputStream.ToArray();
-            RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
+           RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
 
             /*
             MobileLPR.LprJob job = new MobileLPR.LprJob();
