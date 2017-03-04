@@ -22,8 +22,9 @@ namespace mReporterLib
             _space = space;
         }
 
-        public override OutputLine Render(RenderContext context)
+        public override void Render(RenderContext context)
         {
+            /*
             EscCode r;
 
             if (_spaceType == EmptySpaceType.Line) {
@@ -33,11 +34,14 @@ namespace mReporterLib
                 r = EscCode.CreateCode(27, 74, _space);
             }
 
-            var line = context.AddToOutput(this, r);
+            var line = context.CreateOutputLine(this);
             line.AppendNewLine = false;
+            line.Append(r);
 
-            return line;
+            context.AddToOutput(line);
+            */
         }
+
     }
 
 }

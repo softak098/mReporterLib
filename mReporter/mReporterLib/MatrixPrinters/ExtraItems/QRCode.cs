@@ -30,8 +30,9 @@ namespace mReporterLib
             ErrorCorrectionLevel = QRErrorCorrectionLevel.L;
         }
 
-        public override OutputLine Render(RenderContext context)
+        public override void Render(RenderContext context)
         {
+            /*
             if (_data == null) return null;
 
             StringBuilder sb = new StringBuilder();
@@ -59,6 +60,7 @@ namespace mReporterLib
             var line = context.AddToOutput(this, sb.ToString());
             line.AppendNewLine = false;
             return line;
+            */
         }
 
         string _data = null;

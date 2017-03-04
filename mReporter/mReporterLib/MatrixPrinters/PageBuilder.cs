@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -10,9 +11,10 @@ namespace mReporterLib
         const string PAGE_NUMBER_PLACEHOLDER = "$P";
         const string TOTAL_PAGE_NUMBER_PLACEHOLDER = "$T";
 
-        StringBuilder _output;
         Report _report;
         EscCode _ffSequence;
+        MemoryStream _outputStream;
+        Encoding _textEncoding;
 
         /// <summary>
         /// Specifies page height in lines
@@ -22,7 +24,7 @@ namespace mReporterLib
         public int CurrentLine { get; set; }
         public int CurrentPage { get; set; }
 
-        public PageBuilder(Report report, int pageHeight = 66)
+        public PageBuilder(Report report, Encoding textEncoding, int pageHeight = 66)
         {
             _report = report;
             _ffSequence = _report.Dialect.FormFeed();
@@ -30,47 +32,58 @@ namespace mReporterLib
             PageHeight = pageHeight;
             CurrentLine = 1;
             CurrentPage = 1;
-            _output = new StringBuilder();
+
+            _outputStream = new MemoryStream();
+            _textEncoding = textEncoding;
             Reset();
         }
 
         /// <summary>
-        /// Build report output starting on specified output line
+        /// Build report output starting on specified element
         /// </summary>
-        public void Build(RenderContext context, OutputLine rootLine = null)
+        public void Build(RenderContext context, OutputElement rootElement = null)
         {
 
-            // we start from parent output lines
-            foreach (var oLine in context.GetLines(rootLine)) {
+            foreach (var el in context.GetElements(rootElement)) {
 
-                BuildInternal(context, oLine);
-                Build(context, oLine);
+                if (el is LineElement) {
+
+                    BuildLines(context, (LineElement)el);
+                    Build(context, el);
+
+                }
+                else {
+
+                    el.WriteTo(_outputStream, _textEncoding);
+
+                }
 
             }
         }
 
 
 
-        void BuildInternal(RenderContext context, OutputLine lineObj)
+        void BuildLines(RenderContext context, LineElement el)
         {
-            int linesToBuild = lineObj.GeneratedLines.Count;
+            int linesToBuild = el.LineCount;
             if (linesToBuild == 0) return; // nothing to generate
 
             if (PageHeight == 0) {
                 // in infinite report (for POS) there is no need to check paging
-                AddToOutput(lineObj, 0);
+                el.WriteTo(_outputStream, _textEncoding);
+                //AddToOutput(el, 0);
                 return;
             }
 
             // check, if there is a page footer
-            OutputLine footerLine = GetFooterLine();
-            int footerLines = footerLine != null ? footerLine.GeneratedLines.Count : 0;
+            LineElement footerLine = GetFooterLine();
+            int footerLines = footerLine != null ? footerLine.Lines.Count : 0;
 
             int startLine = 0;
             while (linesToBuild > 0) {
                 bool pageBreak = CurrentLine + linesToBuild + footerLines > PageHeight + 1;
-                if (pageBreak && lineObj.SourceReportItem is Line) {
-                    bool breakInside = (lineObj.SourceReportItem as Line).PageBreakInside;
+                if (pageBreak && el.SourceReportItem is Line) {
+                    bool breakInside = (el.SourceReportItem as Line).PageBreakInside;
                     if (!breakInside) {
                         AddNewPage(context, true);
                         pageBreak = false;
@@ -81,7 +94,7 @@ namespace mReporterLib
                 if (linesToInsert > linesToBuild) linesToInsert = linesToBuild;
 
                 if (linesToInsert > 0) {
-                    AddToOutput(lineObj.GeneratedLines, startLine, linesToInsert);
+                    AddToOutput(el, startLine, linesToInsert);
                     startLine += linesToInsert;
                 }
 
@@ -100,14 +113,16 @@ namespace mReporterLib
         /// </summary>
         internal void Reset()
         {
-            _output.Append(_report.Dialect.Reset().Start); // we start with reseting printer
+            _report.Dialect.Reset().WriteTo(_outputStream, _textEncoding);
+            //_output.Append(_report.Dialect.Reset().Start); // we start with reseting printer
         }
 
         void AddNewPage(RenderContext context, bool addNextLines)
         {
+            /*
             // insert page footer
-            OutputLine footerLine = GetFooterLine();
-            int footerLines = footerLine != null ? footerLine.GeneratedLines.Count : 0;
+            LineElement footerLine = GetFooterLine();
+            int footerLines = footerLine != null ? footerLine.Lines.Count : 0;
             if (footerLine != null) {
                 // add several empty lines to place footer on bottom of page
                 for (int i = 0; i < PageHeight - footerLines - CurrentLine + 1; i++) {
@@ -115,7 +130,7 @@ namespace mReporterLib
                     _output.AppendLine();
                 }
                 // place footer line(s) to output
-                AddToOutput(footerLine.GeneratedLines, 0); // !!! - do not replace with BuildInternal
+                AddToOutput(footerLine.Lines, 0); // !!! - do not replace with BuildInternal
             }
             // first replace page number placeholders in current output
             ReplacePageNumber();
@@ -128,15 +143,17 @@ namespace mReporterLib
                 CurrentLine = 1;
                 // add page header to new page, if any
                 var headerLine = GetHeaderLine();
-                if (headerLine != null) BuildInternal(context, headerLine);
+                if (headerLine != null) BuildLines(context, headerLine);
 
                 // repeat item(s) marked as RepeatOnNewPage
                 RepeatItemsOnNewPage(context);
             }
+            */
         }
 
-        void RepeatItemsOnNewPage(RenderContext context, OutputLine rootLine = null)
+        void RepeatItemsOnNewPage(RenderContext context, LineElement rootLine = null)
         {
+            /*
             foreach (var oLine in context.GetLines(rootLine)) {
                 var lineItem = oLine.SourceReportItem as Line;
 
@@ -148,33 +165,36 @@ namespace mReporterLib
 
                 RepeatItemsOnNewPage(context, oLine);
             }
+            */
         }
 
         #region header & footer lines
-        OutputLine _footerLine = null;
+        LineElement _footerLine = null;
         bool _footerLineExists = true;
-        OutputLine GetFooterLine()
+        LineElement GetFooterLine()
         {
             if (!_footerLineExists) return null;
             if (_footerLine != null) return _footerLine;
             var footer = _report.GetPageFooter();
             if (footer != null) {
                 RenderContext footerContext = new RenderContext(_report);
-                _footerLine = footer.Render(footerContext);
+                footer.Render(footerContext);
+                _footerLine = footerContext.LastLineElement;
             }
             return _footerLine;
         }
 
-        OutputLine _headerLine = null;
+        LineElement _headerLine = null;
         bool _headerLineExists = true;
-        OutputLine GetHeaderLine()
+        LineElement GetHeaderLine()
         {
             if (!_headerLineExists) return null;
             if (_headerLine != null) return _headerLine;
             var header = _report.GetPageHeader();
             if (header != null) {
                 RenderContext headerContext = new RenderContext(_report);
-                _headerLine = header.Render(headerContext);
+                header.Render(headerContext);
+                _headerLine = headerContext.LastLineElement;
             }
             return _headerLine;
         }
@@ -189,18 +209,27 @@ namespace mReporterLib
 
         internal void ReplacePageNumber()
         {
-            _output.Replace(PAGE_NUMBER_PLACEHOLDER, CurrentPage.ToString().PadLeft(2));
+            //_output.Replace(PAGE_NUMBER_PLACEHOLDER, CurrentPage.ToString().PadLeft(2));
         }
 
         internal void ReplaceTotalPageNumber()
         {
-            _output.Replace(TOTAL_PAGE_NUMBER_PLACEHOLDER, CurrentPage.ToString().PadLeft(2));
+            //_output.Replace(TOTAL_PAGE_NUMBER_PLACEHOLDER, CurrentPage.ToString().PadLeft(2));
         }
 
-        void AddToOutput(List<string> lines, int from, int count = int.MaxValue, bool addNewLine=true)
+        void AddToOutput(LineElement line, int from, int count = int.MaxValue, bool addNewLine = true)
         {
-            count = Math.Min(count, lines.Count - from);
+
+            count = Math.Min(count, line.LineCount - from);
+
+            line.WriteTo(_outputStream, _textEncoding, from, count);
+            /*
             for (int i = 0; i < count; i++) {
+
+
+                line.Lines[i + from].
+
+                /*
                 if (addNewLine) {
                     _output.AppendLine(lines[i + from]);
                 }
@@ -208,22 +237,18 @@ namespace mReporterLib
                     _output.Append(lines[i + from]);
                 }
             }
+            */
+
 
         }
 
-        void AddToOutput(OutputLine line, int from, int count = int.MaxValue)
-        {
-            var lines = line.GeneratedLines;
-            AddToOutput(lines, from, count, line.AppendNewLine);
-        }
 
         /// <summary>
         /// Final output from generator
         /// </summary>
         public string Output
         {
-            get
-            { return _output.ToString(); }
+            get { return ""; } 
         }
 
     }

@@ -32,8 +32,6 @@ namespace mReporterLib
             this.Type = type;
         }
 
-        public abstract OutputLine Render(RenderContext context);
-
         public void AddItem(ReportItem item)
         {
             if (this.Items == null) this.Items = new List<ReportItem>();
@@ -53,6 +51,8 @@ namespace mReporterLib
             }
             return null;
         }
+
+        public abstract void Render(RenderContext context);
     }
 
 }

@@ -106,10 +106,15 @@ namespace mReporterLib
         /// <summary>
         /// Formats result value based on parameters from GetData handler
         /// </summary>
-        public List<string> Format(RenderContext context, GetDataResult[] resultData)
+        internal void Build(RenderContext context, LineElement lineBuilder, GetDataResult[] resultData)
         {
             List<string> result = new List<string>();
-            StringBuilder lineBuilder = new StringBuilder();
+
+            //OutputLine lineBuilder = new OutputLine(context.CurrentOutputParent);
+
+
+
+            //StringBuilder lineBuilder = new StringBuilder();
 
             Dictionary<int, List<string>> multilineValues = null;
             Action<int, List<string>> _AddMultiline = (index, data) => {
@@ -168,7 +173,10 @@ namespace mReporterLib
 
                     var styleInfo = context.Report.Dialect.FontStyle(valueData.Style);
                     var alignInfo = context.Report.Dialect.Align(_line.Alignment);
-                    lineBuilder.Append(firstLineValue.ApplyEscCode(alignInfo, styleInfo));
+
+                    lineBuilder.Append(firstLineValue,  alignInfo, styleInfo);
+
+                    //lineBuilder.Append(firstLineValue.ApplyEscCode(alignInfo, styleInfo));
                 }
             }
 
@@ -201,8 +209,7 @@ namespace mReporterLib
 
                         if (applyStyle) {
                             var styleInfo = context.Report.Dialect.FontStyle(valueData.Style);
-                            if (styleInfo != null) lineBuilder.Append(styleInfo.Apply(nextLineValue));
-                            else lineBuilder.Append(nextLineValue);
+                            lineBuilder.Append(nextLineValue,  styleInfo);
                         }
                         else lineBuilder.Append(nextLineValue);
                     }
@@ -212,13 +219,17 @@ namespace mReporterLib
             var lineStyleInfo = context.Report.Dialect.FontStyle(_line.Style);
             var linePrintInfo = context.Report.Dialect.PrintStyle(_line.PrintStyle);
             var lineAlignInfo = context.Report.Dialect.Align(_line.Alignment);
+
+            lineBuilder.Apply(lineAlignInfo, linePrintInfo, lineStyleInfo);
+
+            /*
             foreach (var lineStr in lineBuilder.ToString().Split('\n')) {
 
                 result.Add(
                     lineStr.Trim('\r', '\n').ApplyEscCode(lineAlignInfo, linePrintInfo, lineStyleInfo)
                     );
             }
-            return result;
+            */
         }
 
         static List<string> WordWrap(string the_string, int width)
@@ -274,10 +285,10 @@ namespace mReporterLib
                 return r.PadLeft(width); //  string.Concat(r, new string(' ', width - r.Length));
             }
 
-            Int32 middle = s.Length / 2;
-            IDictionary<Int32, Int32> spaceOffsetsToParts = new Dictionary<Int32, Int32>();
-            String[] parts = s.Split(' ');
-            for (Int32 partIndex = 0, offset = 0; partIndex < parts.Length; partIndex++) {
+            int middle = s.Length / 2;
+            Dictionary<int, int> spaceOffsetsToParts = new Dictionary<int, int>();
+            string[] parts = s.Split(' ');
+            for (int partIndex = 0, offset = 0; partIndex < parts.Length; partIndex++) {
                 spaceOffsetsToParts.Add(offset, partIndex);
                 offset += parts[partIndex].Length + 1; // +1 to count space that was removed by Split
             }

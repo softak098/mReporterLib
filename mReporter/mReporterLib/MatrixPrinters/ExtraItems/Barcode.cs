@@ -23,7 +23,7 @@ namespace mReporterLib
     }
 
     /// <summary>
-    /// Prints barcode
+    /// Prints barcode (in ESC/POS mode)
     /// </summary>
     public class Barcode : ReportItem
     {
@@ -44,28 +44,24 @@ namespace mReporterLib
             BarcodeType = BarcodeType.CODE39;
         }
 
-        public override OutputLine Render(RenderContext context)
+        public override void Render(RenderContext context)
         {
-            if (_data == null) return null;
+            /*
+            if (_data == null) return;
+            if (!(context.Report.Dialect is ESCPosDialect)) return;
 
-            StringBuilder sb = new StringBuilder();
-            sb.Append(context.Report.Dialect.Align(this.Alignment).Start);
-
+            context.AddToOutput(context.Report.Dialect.Align(this.Alignment));
             // hri characters
-            sb.Append(EscCode.CreateCode(29, 102, (int)HriFont));
-            sb.Append(EscCode.CreateCode(29, 72, (int)HriPosition));
+            context.AddToOutput(EscCode.CreateCode(29, 102, (int)HriFont));
+            context.AddToOutput(EscCode.CreateCode(29, 72, (int)HriPosition));
             // height of the code
-            sb.Append(EscCode.CreateCode(29, 104, Math.Min(Height, 255)));
+            context.AddToOutput(EscCode.CreateCode(29, 104, Math.Min(Height, 255)));
             // width of the code
-            sb.Append(EscCode.CreateCode(29, 119, Math.Min(Width, 6)));
+            context.AddToOutput(EscCode.CreateCode(29, 119, Math.Min(Width, 6)));
             // and code itself
-            sb.Append(EscCode.CreateCode(29, 107, (int)BarcodeType, _data.Length));
-            sb.Append(_data);
-
-            var line = context.AddToOutput(this, sb.ToString());
-            line.AppendNewLine = false;
-
-            return line;
+            context.AddToOutput(EscCode.CreateCode(29, 107, (int)BarcodeType, _data.Length));
+            context.AddToOutput(new TextElement(_data));
+            */
         }
 
         string _data = null;

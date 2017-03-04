@@ -18,11 +18,14 @@ namespace mReporterLib
         /// </summary>
         public PrinterDialect Dialect { get; set; }
 
+        public Encoding TextEncoding { get; set; }
+
         public Report(PrinterDialect dialect)
         {
             this._items = new List<ReportItem>();
             PageHeight = 66;
             Dialect = dialect;
+            TextEncoding = Encoding.ASCII;
         }
 
 
@@ -41,7 +44,7 @@ namespace mReporterLib
 
         public PageBuilder BuildPages(RenderContext renderContext)
         {
-            PageBuilder builder = new PageBuilder(this, this.PageHeight);
+            PageBuilder builder = new PageBuilder(this, this.TextEncoding, this.PageHeight);
 
             if (PageHeight > 0) {
                 // we are on first page - add page header

@@ -125,9 +125,9 @@ namespace mReporterLib
             return null;
         }
 
-        public override OutputLine Render(RenderContext context)
+        public override void Render(RenderContext context)
         {
-            if (_lineTemplate == null) return null;
+            if (_lineTemplate == null) return;
 
             GetDataResult[] r = new GetDataResult[_lineTemplate.ValueCount];
             for (int i = 0; i < _lineTemplate.ValueCount; i++) {
@@ -135,18 +135,19 @@ namespace mReporterLib
                 r[i] = GetDataResultInternal(i);
             }
 
-            OutputLine oLine = context.AddToOutput(this, _lineTemplate.Format(context,r));
+            LineElement oLine = new LineElement();
+            _lineTemplate.Build(context, oLine, r);
+
+            context.AddToOutput(this,oLine);
 
             if (this.Items != null) {
                 // process child items
-                context.SetOutputParent(oLine);
+                context.SetParentElement(oLine);
 
                 Items.ForEach(i => i.Render(context));
 
-                context.SetOutputParent(oLine.Parent);
+                context.SetParentElement(oLine.Parent);
             }
-
-            return oLine;
         }
 
         public override string ToString()

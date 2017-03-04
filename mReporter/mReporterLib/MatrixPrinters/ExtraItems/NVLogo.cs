@@ -32,8 +32,9 @@ namespace mReporterLib
             this._size = logoSize;
         }
 
-        public override OutputLine Render(RenderContext context)
+        public override void Render(RenderContext context)
         {
+            /*
             var data = new List<string>();
             data.Add(context.Report.Dialect.Align(this.LogoAlign).Apply(28, 112, _logoIndex, (byte)_size));
 
@@ -41,6 +42,7 @@ namespace mReporterLib
             line.AppendNewLine = false;
 
             return line;
+            */
         }
     }
 

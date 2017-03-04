@@ -10,52 +10,51 @@ namespace mReporterLib
     {
         internal Report Report { get; private set; }
 
-
         public RenderContext(Report report)
         {
             this.Report = report;
             _currentOutputLine = null;
-            _outputLines = new List<OutputLine>();
+            _outputLines = new List<LineElement>();
         }
 
-        OutputLine _currentOutputLine;
-        List<OutputLine> _outputLines;
-        internal List<OutputLine> OutputLines { get { return _outputLines; } }
+        LineElement _currentOutputLine;
+        internal LineElement CurrentOutputParent => _currentOutputLine;
+        List<LineElement> _outputLines;
+        internal List<LineElement> OutputLines => _outputLines;
+        internal LineElement LastLineElement => _outputLines.Last();
 
-        internal IEnumerable<OutputLine> GetLines(OutputLine parent)
+        OutputElement _parentElement;
+        List<OutputElement> _elements;
+
+        /*
+        internal IEnumerable<LineElement> GetLines(LineElement parent)
         {
             foreach (var oLine in _outputLines.Where(r => r.Parent == parent)) {
                 yield return oLine;
             }
         }
+        */
 
-        internal OutputLine AddToOutput(ReportItem item, List<string> data)
+        internal IEnumerable<OutputElement> GetElements(OutputElement parentElement)
         {
-            var oLine = new OutputLine(_currentOutputLine, item, data);
-            _outputLines.Add(oLine);
-            return oLine;
-        }
-
-        internal OutputLine AddToOutput(ReportItem item, string data)
-        {
-            var oLine = new OutputLine(_currentOutputLine, item, data);
-            _outputLines.Add(oLine);
-            return oLine;
-        }
-
-        internal OutputLine AddToOutput(ReportItem item, EscCode code)
-        {
-            var oLine = new OutputLine(_currentOutputLine, item, code.ToString());
-            _outputLines.Add(oLine);
-            return oLine;
+            foreach (var oLine in _elements.Where(r => r.Parent == parentElement)) {
+                yield return oLine;
+            }
         }
 
 
-        internal void SetOutputParent(OutputLine newOutputParent)
+        internal void AddToOutput(ReportItem item,  OutputElement element)
         {
-            _currentOutputLine = newOutputParent;
+            element.SourceReportItem = item;
+            element.Parent = _parentElement;
+            _elements.Add(element);
         }
 
-      }
+        internal void SetParentElement(OutputElement parentElement)
+        {
+            _parentElement = parentElement;
+        }
+
+    }
 
 }

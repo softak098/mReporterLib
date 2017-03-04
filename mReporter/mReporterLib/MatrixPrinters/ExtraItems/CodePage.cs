@@ -14,11 +14,15 @@ namespace mReporterLib
             _codePage = codePage;
         }
 
-        public override OutputLine Render(RenderContext context)
+        public override void Render(RenderContext context)
         {
-            var line = context.AddToOutput(this, EscCode.CreateCode(27, 116, _codePage));
+            /*
+            var line = context.CreateOutputLine(this);
+            line.Append(EscCode.CreateCode(27, 116, _codePage));
             line.AppendNewLine = false;
-            return line;
+
+            context.AddToOutput(line);
+            */
         }
     }
 

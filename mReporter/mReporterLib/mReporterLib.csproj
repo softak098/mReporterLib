@@ -48,9 +48,13 @@
     <Compile Include="LabelPrinters\Label.cs" />
     <Compile Include="MatrixPrinters\Line.cs" />
     <Compile Include="MatrixPrinters\LineTemplate.cs" />
-    <Compile Include="MatrixPrinters\OutputLine.cs" />
+    <Compile Include="MatrixPrinters\Output\BinaryData.cs" />
+    <Compile Include="MatrixPrinters\Output\EscCode.cs" />
+    <Compile Include="MatrixPrinters\Output\OutputElement.cs" />
+    <Compile Include="MatrixPrinters\Output\LineElement.cs" />
     <Compile Include="MatrixPrinters\PageBuilder.cs" />
     <Compile Include="MatrixPrinters\PrinterDialect.cs" />
+    <Compile Include="MatrixPrinters\Output\LineLineElement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MatrixPrinters\RawPrinterHelper.cs" />
     <Compile Include="MatrixPrinters\RenderContext.cs" />

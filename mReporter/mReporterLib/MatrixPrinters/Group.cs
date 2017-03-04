@@ -25,7 +25,7 @@ namespace mReporterLib
         {
         }
 
-        public override OutputLine Render(RenderContext context)
+        public override void Render(RenderContext context)
         {
             if (this.GetDataSource != null) {
                 this.DataSource = this.GetDataSource();
@@ -38,7 +38,6 @@ namespace mReporterLib
 
             });
 
-            return null;
         }
 
         void ForAllReportItems(Action<ReportItem, TDataSource> action)
