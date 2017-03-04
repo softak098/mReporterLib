@@ -22,20 +22,12 @@ namespace mReporterLib
 
         public override void Render(RenderContext context)
         {
-            /*
-            OutputLine l = context.CreateOutputLine(this);
             if (LineSpace == null) {
-
-                l.Append(EscCode.CreateCode(27, 50));
+                context.AddToOutput(this, new EscCode(27, 50));
             }
             else {
-                l.Append(EscCode.CreateCode(27, 51, LineSpace.Value));
-
+                context.AddToOutput(this,new EscCode(27, 51, LineSpace.Value));
             }
-            l.AppendNewLine = false;
-
-            context.AddToOutput(l);
-            */
         }
 
 

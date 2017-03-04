@@ -13,7 +13,10 @@ namespace mReporterLib
 
         Report _report;
         EscCode _ffSequence;
+
         MemoryStream _outputStream;
+        public MemoryStream OutputStream => _outputStream;
+
         Encoding _textEncoding;
 
         /// <summary>

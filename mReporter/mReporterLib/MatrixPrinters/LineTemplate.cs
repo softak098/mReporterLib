@@ -39,7 +39,7 @@ namespace mReporterLib
         /// <summary>
         /// Returns number of values on line
         /// </summary>
-        public int ValueCount { get { return _items.Count(r => r.Type == LineTemplateItemType.Value); } }
+        public int ValueCount => _items.Count(r => r.Type == LineTemplateItemType.Value);
 
         public LineTemplate(Line line, string lineTemplate)
         {
@@ -108,14 +108,6 @@ namespace mReporterLib
         /// </summary>
         internal void Build(RenderContext context, LineElement lineBuilder, GetDataResult[] resultData)
         {
-            List<string> result = new List<string>();
-
-            //OutputLine lineBuilder = new OutputLine(context.CurrentOutputParent);
-
-
-
-            //StringBuilder lineBuilder = new StringBuilder();
-
             Dictionary<int, List<string>> multilineValues = null;
             Action<int, List<string>> _AddMultiline = (index, data) => {
 

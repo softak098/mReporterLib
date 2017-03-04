@@ -7,8 +7,9 @@ using System.Text;
 namespace mReporterLib
 {
 
-    class OutputLineLine
+    class OutputLineLine : IWriteToStream
     {
+        List<EscCode> _codes;
         List<OutputElement> _elements;
         internal int LineHeight;
 
@@ -33,9 +34,29 @@ namespace mReporterLib
             _elements.Add(new TextElement(value, codes));
         }
 
-        internal void Append(EscCode code)
+        internal void Append(EscCodePair code)
         {
             _elements.Add(code);
+        }
+
+        internal void Apply(EscCode[] codes)
+        {
+            if (_codes == null) _codes = new List<EscCode>(codes);
+            else {
+                _codes.AddRange(codes);
+            }
+        }
+
+        public void WriteTo(Stream stream, Encoding textEncoding)
+        {
+            if (_codes != null) {
+
+                _codes.ForEach(c => c?.WriteTo(stream, textEncoding, false));
+                _elements.ForEach(e => e.WriteTo(stream, textEncoding));
+                _codes.ForEach(c => c?.WriteTo(stream, textEncoding, true));
+
+            }
+            else _elements.ForEach(e => e.WriteTo(stream, textEncoding));
         }
 
     }
@@ -45,6 +66,7 @@ namespace mReporterLib
     public class TextElement : OutputElement
     {
         string _data;
+        List<EscCode> _codes;
 
         public TextElement(string data)
         {
@@ -54,13 +76,28 @@ namespace mReporterLib
         public TextElement(string data, params EscCode[] codes)
         {
             _data = data;
+            _codes = new List<EscCode>(codes);
         }
 
         public override void WriteTo(Stream stream, Encoding textEncoding)
         {
-            if (string.IsNullOrWhiteSpace(_data)) return;
-            var buffer = textEncoding.GetBytes(_data);
-            stream.Write(buffer, 0, buffer.Length);
+            if (_data == null) return;
+
+            if (_codes != null) {
+
+                _codes.ForEach(c => c?.WriteTo(stream, textEncoding, false));
+
+                var buffer = textEncoding.GetBytes(_data);
+                stream.Write(buffer, 0, buffer.Length);
+
+                _codes.ForEach(c => c?.WriteTo(stream, textEncoding, true));
+
+            }
+            else {
+                var buffer = textEncoding.GetBytes(_data);
+                stream.Write(buffer, 0, buffer.Length);
+            }
+
         }
     }
 

@@ -7,7 +7,9 @@ using System.Text;
 namespace mReporterLib
 {
 
-
+    /// <summary>
+    /// Represents line with text and additional lines with text
+    /// </summary>
     public class LineElement : OutputElement
     {
 
@@ -71,18 +73,22 @@ namespace mReporterLib
         /// </summary>
         internal void Apply(params EscCode[] codes)
         {
-
-
+            Lines.ForEach(l => l.Apply(codes));
         }
 
         public override void WriteTo(Stream stream, Encoding textEncoding)
         {
+            Lines.ForEach(l => {
+
+                l.WriteTo(stream, textEncoding);
+                if (AppendNewLine) stream.WriteByte(10);
+
+            });
         }
 
         public void WriteTo(Stream stream, Encoding textEncoding, int from, int count)
         {
-
-
+            throw new NotImplementedException();
         }
 
 

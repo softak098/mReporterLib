@@ -9,46 +9,47 @@ namespace mReporterLib
 
     public class EscCode : OutputElement
     {
-        public string Start;
-        public string End;
+        byte[] _code;
 
-        public EscCode(string start, string end)
+        public EscCode(params byte[] codes)
         {
-            Start = start; End = end;
-        }
-
-        public string Apply(string source)
-        {
-            return string.Concat(Start ?? "", source, End ?? "");
-        }
-
-        public string Apply(EscCode code)
-        {
-            return this.Apply(code.Start ?? "" + code.End ?? "");
-        }
-
-        public string Apply(params int[] codes)
-        {
-            var code = CreateCode(codes);
-            return Apply(code);
-        }
-
-        internal static EscCode CreateCode(params int[] codes)
-        {
-            var result = new char[codes.Length];
-            for (int i = 0; i < codes.Length; i++) result[i] = (char)codes[i];
-            return new EscCode(new string(result), null);
-        }
-
-        public override string ToString()
-        {
-            return string.Concat(Start ?? "", End ?? "");
+            _code = codes;
         }
 
         public override void WriteTo(Stream stream, Encoding textEncoding)
         {
-            throw new NotImplementedException();
+            stream.Write(_code, 0, _code.Length);
         }
+
+        public virtual void WriteTo(Stream stream, Encoding textEncoding, bool endSequence)
+        {
+            if (!endSequence) WriteTo(stream, textEncoding);
+        }
+    }
+
+
+    public class EscCodePair : EscCode
+    {
+        public EscCode Start;
+        public EscCode End;
+
+        public EscCodePair(EscCode start, EscCode end)
+        {
+            Start = start; End = end;
+        }
+
+        public override void WriteTo(Stream stream, Encoding textEncoding)
+        {
+            Start?.WriteTo(stream, textEncoding);
+            End?.WriteTo(stream, textEncoding);
+        }
+
+        public override void WriteTo(Stream stream, Encoding textEncoding, bool endSequence)
+        {
+            if (endSequence) End?.WriteTo(stream, textEncoding);
+            else Start?.WriteTo(stream, textEncoding);
+        }
+
     }
 
 }

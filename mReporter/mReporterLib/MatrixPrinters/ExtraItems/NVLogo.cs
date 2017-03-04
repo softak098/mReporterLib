@@ -34,15 +34,8 @@ namespace mReporterLib
 
         public override void Render(RenderContext context)
         {
-            /*
-            var data = new List<string>();
-            data.Add(context.Report.Dialect.Align(this.LogoAlign).Apply(28, 112, _logoIndex, (byte)_size));
-
-            var line = context.AddToOutput(this, data);
-            line.AppendNewLine = false;
-
-            return line;
-            */
+            context.AddToOutput(this, context.Report.Dialect.Align(this.LogoAlign));
+            context.AddToOutput(this, new EscCode(28, 112, _logoIndex, (byte)_size));
         }
     }
 

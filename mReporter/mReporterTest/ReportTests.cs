@@ -23,7 +23,7 @@ namespace mReporterTest
 
             rpt.AddItem(new Line(ReportItemType.ReportFooter) {
 
-                Template = "BKP: ___________________________________",
+                Template = "BKP: ________________________________________",
                 GetData = e => {
 
                     e.Result.Value = "F10835FD-664E9E38-07111A35-FE053C13-E5C63B25";
@@ -34,7 +34,7 @@ namespace mReporterTest
 
             rpt.AddItem(new Line(ReportItemType.ReportFooter) {
 
-                Template = "PKP: ___________________________________",
+                Template = "PKP: ________________________________________",
                 GetData = e => {
 
                     e.Result.Value = "BPNsyN3auTjXF8KAlxYvwnLBW8z9WQil8Ur4dY11jUH+54MW+bd6gm5Lpwlt+b0hrctUVnNMhcPBhYXG21v9pahhS7K9eLcrCq+kUL9JowKjxRyBELTcAebuOusc1PAoTbndJBQBvGlpdIbz1oQIk3H2ARoxHCJzIwrpKmD8EVrkzOohWdA/HSD9GGleBRuQxvX0zzCoupYP0fos+DJk7abxOyZxL1fl0+XnhtBvO+BBeomXMANModOSZZXuPZlWegrTDAYtGtpDRBC5INj309GdzP+8PWKlsohKoL7cEi55Dz+Gytj0keyTi1w3028sEHistxH+ZZX+lbQ6+9aUhQ==";
@@ -46,7 +46,7 @@ namespace mReporterTest
 
             rpt.AddItem(new Line(ReportItemType.ReportFooter) {
 
-                Template = "FIK: ___________________________________",
+                Template = "FIK: ________________________________________",
                 GetData = e => {
 
                     e.Result.Value = "2dd0fa0c-ce5b-44ad-8222-a99d26a0b1b8-ff";
@@ -60,11 +60,11 @@ namespace mReporterTest
             var rContext = rpt.Render();
             var pBuilder = rpt.BuildPages(rContext);
 
+
+
             using (var fs = new FileStream(@"C:\TEMP\dataEet.prn", FileMode.Create)) {
-                using (var sw = new StreamWriter(fs, Encoding.ASCII)) {
-                    sw.Write(pBuilder.Output);
-                    sw.Close();
-                }
+
+                pBuilder.OutputStream.WriteTo(fs);
             }
 
             /*
@@ -72,13 +72,9 @@ namespace mReporterTest
             printer.Print("COM9");
             */
 
-            byte[] data = Encoding.GetEncoding(852).GetBytes(pBuilder.Output);
 
-            //RawPrinterHelper.SendToPrinter("POS-58", data);
-
-
-            //byte[] printData = Encoding.ASCII.GetBytes(pBuilder.Output);
-            RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
+            //var data = pBuilder.OutputStream.ToArray();
+              //RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
         }
 
 
@@ -88,6 +84,7 @@ namespace mReporterTest
 
             Report rpt = new Report(new ESCPosDialect(PrinterModel.EpsonPosGeneric));
             rpt.PageHeight = 0;
+            rpt.TextEncoding = Encoding.GetEncoding(852);
 
             rpt.AddItem(new CodePage(18));
             rpt.AddItem(new LineSpacing(0));
@@ -217,25 +214,14 @@ namespace mReporterTest
             var pBuilder = rpt.BuildPages(rContext);
 
             using (var fs = new FileStream(@"C:\TEMP\data.prn", FileMode.Create)) {
-                using (var sw = new StreamWriter(fs, Encoding.ASCII)) {
-                    sw.Write(pBuilder.Output);
-                    sw.Close();
-                }
+
+                pBuilder.OutputStream.WriteTo(fs);
+
             }
 
 
-            /*
-            var printer = new SerialPrinter(pBuilder.Output, Encoding.ASCII);
-            printer.Print("COM9");
-            */
-
-            byte[] data = Encoding.GetEncoding(852).GetBytes(pBuilder.Output);
-
-            //RawPrinterHelper.SendToPrinter("POS-58", data);
-
-
-            //byte[] printData = Encoding.ASCII.GetBytes(pBuilder.Output);
-            //RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
+            var data = pBuilder.OutputStream.ToArray();
+            RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
 
             /*
             MobileLPR.LprJob job = new MobileLPR.LprJob();

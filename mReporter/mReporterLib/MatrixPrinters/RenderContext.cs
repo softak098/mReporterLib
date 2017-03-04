@@ -13,15 +13,25 @@ namespace mReporterLib
         public RenderContext(Report report)
         {
             this.Report = report;
-            _currentOutputLine = null;
-            _outputLines = new List<LineElement>();
+            //_currentOutputLine = null;
+            //_outputLines = new List<LineElement>();
+
+            _elements = new List<OutputElement>();
         }
 
-        LineElement _currentOutputLine;
-        internal LineElement CurrentOutputParent => _currentOutputLine;
-        List<LineElement> _outputLines;
-        internal List<LineElement> OutputLines => _outputLines;
-        internal LineElement LastLineElement => _outputLines.Last();
+        //LineElement _currentOutputLine;
+        //internal LineElement CurrentOutputParent => _currentOutputLine;
+        //List<LineElement> _outputLines;
+        //internal List<LineElement> OutputLines => _outputLines;
+
+        internal LineElement LastLineElement
+        {
+            get
+            {
+                return _elements.Where(r => r is LineElement).Last() as LineElement;
+            }
+        }
+
 
         OutputElement _parentElement;
         List<OutputElement> _elements;
@@ -43,7 +53,7 @@ namespace mReporterLib
         }
 
 
-        internal void AddToOutput(ReportItem item,  OutputElement element)
+        internal void AddToOutput(ReportItem item, OutputElement element)
         {
             element.SourceReportItem = item;
             element.Parent = _parentElement;
