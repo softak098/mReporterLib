@@ -8,12 +8,19 @@ namespace mReporterLib
 
     public enum Align { AsBefore, Left, Right, Center, Justify }
 
-    public enum FontStyle { Normal, Emphasized, Underline, UnderlineDouble, Italic, Inverse }
+    public enum FontStyle { Normal, Emphasized, Underline, UnderlineDouble, Upperline, Italic, Inverse }
 
-    public enum PrintStyle {
+    public enum PrintStyle
+    {
         /// <summary>
         /// Do not set line print style, leave setting from lines before
         /// </summary>
-        AsBefore, Pica, Elite, Condensed }
+        AsBefore, Pica, Elite, Condensed
+    }
+
+    public enum FontType : byte
+    {
+        A = 0, B = 1, C = 2, OCR = 16
+    }
 
 }

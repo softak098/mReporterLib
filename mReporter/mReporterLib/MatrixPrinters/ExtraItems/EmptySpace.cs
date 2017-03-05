@@ -11,12 +11,12 @@ namespace mReporterLib
         Line, Dot
     }
 
-    public class EmptySpace: ReportItem
+    public class EmptySpace : ReportItem
     {
         EmptySpaceType _spaceType;
         byte _space;
 
-        public EmptySpace(EmptySpaceType spaceType,byte space): base(ReportItemType.UserDefined)
+        public EmptySpace(EmptySpaceType spaceType, byte space) : base(ReportItemType.UserDefined)
         {
             _spaceType = spaceType;
             _space = space;
@@ -24,22 +24,20 @@ namespace mReporterLib
 
         public override void Render(RenderContext context)
         {
-            /*
-            EscCode r;
+            if (context.Report.Dialect is StarLineDialect) {
 
-            if (_spaceType == EmptySpaceType.Line) {
-                r = EscCode.CreateCode(27, 100, _space);
+                if (_spaceType == EmptySpaceType.Line)
+                    context.AddToOutput(this, new EscCode(27, 97, _space));
+
+                else context.AddToOutput(this, new EscCode(27, 73, _space));
+
             }
             else {
-                r = EscCode.CreateCode(27, 74, _space);
+                if (_spaceType == EmptySpaceType.Line) 
+                    context.AddToOutput(this, new EscCode(27, 100, _space));
+
+                else context.AddToOutput(this, new EscCode(27, 74, _space));
             }
-
-            var line = context.CreateOutputLine(this);
-            line.AppendNewLine = false;
-            line.Append(r);
-
-            context.AddToOutput(line);
-            */
         }
 
     }

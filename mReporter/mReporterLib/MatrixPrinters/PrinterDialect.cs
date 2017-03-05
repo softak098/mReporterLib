@@ -19,7 +19,11 @@ namespace mReporterLib
         /// <summary>
         /// OEM ZJ-5802 thermal printers + compatible devices
         /// </summary>
-        ZJ5802
+        ZJ5802,
+        /// <summary>
+        /// Star Micronics printers with StartLine/T emulation
+        /// </summary>
+        StarLineT
     }
 
 
@@ -60,6 +64,12 @@ namespace mReporterLib
                 case mReporterLib.Align.Justify: return _alignJustify;
             }
         }
+
+        public virtual EscCode FontType(FontType type)
+        {
+            return null;
+        }
+
     }
 
 
@@ -126,6 +136,53 @@ namespace mReporterLib
                     break;
             }
             return null;
+        }
+
+    }
+
+    public class StarLineDialect : PrinterDialect
+    {
+        static readonly EscCodePair _fontStyleEmphasized = new EscCodePair(new EscCode(27, 69), new EscCode(27, 70));
+        static readonly EscCodePair _fontStyleUnderline = new EscCodePair(new EscCode(27, 45, 1), new EscCode(27, 45, 0));
+        static readonly EscCodePair _fontStyleUpperline = new EscCodePair(new EscCode(27, 95, 1), new EscCode(27, 95, 0));
+        static readonly EscCodePair _fontStyleInverse = new EscCodePair(new EscCode(27, 52), new EscCode(27, 53));
+
+        static readonly EscCode _alignLeft = new EscCode(27, 29, 97, 0);
+        static readonly EscCode _alignRight = new EscCode(27, 29, 97, 2);
+        static readonly EscCode _alignCenter = new EscCode(27, 29, 97, 1);
+
+        public StarLineDialect() : base(PrinterModel.StarLineT) { }
+
+        public StarLineDialect(PrinterModel model) : base(model)
+        {
+        }
+
+        public override EscCode FontType(FontType type)
+        {
+            return new EscCode(27, 30, 70, (byte)type);
+        }
+
+        public override EscCodePair FontStyle(FontStyle style)
+        {
+            switch (style) {
+                case mReporterLib.FontStyle.Emphasized: return _fontStyleEmphasized;
+                case mReporterLib.FontStyle.Underline: return _fontStyleUnderline;
+                case mReporterLib.FontStyle.Upperline: return _fontStyleUpperline;
+                case mReporterLib.FontStyle.Inverse: return _fontStyleInverse;
+                default:
+                    break;
+            }
+            return null;
+        }
+
+        public override EscCode Align(Align style)
+        {
+            switch (style) {
+                default: return null;
+                case mReporterLib.Align.Left: return _alignLeft;
+                case mReporterLib.Align.Right: return _alignRight;
+                case mReporterLib.Align.Center: return _alignCenter;
+            }
         }
 
     }

@@ -82,11 +82,11 @@ namespace mReporterTest
         public void ReportTest()
         {
 
-            Report rpt = new Report(new ESCPosDialect(PrinterModel.EpsonPosGeneric));
+            Report rpt = new Report(new StarLineDialect());
             rpt.PageHeight = 0;
             rpt.TextEncoding = Encoding.GetEncoding(852);
 
-            rpt.AddItem(new CodePage(18));
+            rpt.AddItem(new CodePage(5));
             //rpt.AddItem(new LineSpacing(0));
 
             //rpt.AddItem(new NVLogo());
@@ -167,13 +167,15 @@ namespace mReporterTest
             var barcodeItem = new Barcode() {
                 BarcodeType = BarcodeType.ITF,
                 Data= "43657621",
+                Width=7,
+                //HriPosition= BarcodeHriPosition.Above
             };
             rpt.AddItem(barcodeItem);
 
-            rpt.AddItem(new EmptySpace(EmptySpaceType.Dot, 15));
+            //rpt.AddItem(new EmptySpace(EmptySpaceType.Dot, 15));
 
-            //rpt.AddItem(new QRCode() { Data = "www.hradboskovice.cz" });
             /*
+            //rpt.AddItem(new QRCode() { Data = "www.hradboskovice.cz" });
             rpt.AddItem(new Line(ReportItemType.Footer) {
                  Alignment= Align.Right,
                 Template = "╔═══════════════════════╗"
@@ -201,17 +203,15 @@ namespace mReporterTest
             });
             */
 
-            /*
             rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN13, Data = "5032037076982", HriPosition= BarcodeHriPosition.Bellow });
             rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN8, Data = "5032370" });
 
             rpt.AddItem(new NVLogo(3, NVLogoSize.Normal) { LogoAlign = Align.Right });
-            */
 
-            rpt.AddItem(new Image(@"E:\IMAGES\_vyrd11_54rozmery.jpg"));
+            //rpt.AddItem(new Image(@"E:\IMAGES\_vyrd11_54rozmery.jpg"));
 
             //rpt.AddItem(new EmptySpace(EmptySpaceType.Line, 4));
-            //rpt.AddItem(new CutPaper());
+            rpt.AddItem(new CutPaper(CutPaperMode.FeedAndFull));
 
             // finaly render and build output
             var rContext = rpt.Render();
@@ -226,6 +226,7 @@ namespace mReporterTest
 
             var data = pBuilder.OutputStream.ToArray();
            RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
+
 
             /*
             MobileLPR.LprJob job = new MobileLPR.LprJob();

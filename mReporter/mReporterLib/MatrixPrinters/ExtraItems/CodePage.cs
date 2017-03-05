@@ -10,13 +10,23 @@ namespace mReporterLib
     {
         byte _codePage = 0;
 
-        public CodePage(byte codePage) : base(ReportItemType.UserDefined) {
+        public CodePage(byte codePage) : base(ReportItemType.UserDefined)
+        {
             _codePage = codePage;
         }
 
         public override void Render(RenderContext context)
         {
-            context.AddToOutput(this, new EscCode(27, 116, _codePage));
+            if (context.Report.Dialect is StarLineDialect) {
+
+                context.AddToOutput(this, new EscCode(27, 29, 116, _codePage));
+
+            }
+            else {
+
+                context.AddToOutput(this, new EscCode(27, 116, _codePage));
+
+            }
         }
     }
 

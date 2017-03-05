@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 namespace mReporterLib
 {
 
-    public enum BarcodeType
+    public enum BarcodeType : byte
     {
         UPC_A = 65, UPC_E = 66, EAN13 = 67, EAN8 = 68, CODE39 = 69, ITF = 70, CODABAR = 71, CODE93 = 72, CODE128 = 73
     }
@@ -46,22 +46,47 @@ namespace mReporterLib
 
         public override void Render(RenderContext context)
         {
-            /*
             if (_data == null) return;
-            if (!(context.Report.Dialect is ESCPosDialect)) return;
+            context.AddToOutput(this, context.Report.Dialect.Align(this.Alignment));
 
-            context.AddToOutput(context.Report.Dialect.Align(this.Alignment));
-            // hri characters
-            context.AddToOutput(EscCode.CreateCode(29, 102, (int)HriFont));
-            context.AddToOutput(EscCode.CreateCode(29, 72, (int)HriPosition));
-            // height of the code
-            context.AddToOutput(EscCode.CreateCode(29, 104, Math.Min(Height, 255)));
-            // width of the code
-            context.AddToOutput(EscCode.CreateCode(29, 119, Math.Min(Width, 6)));
-            // and code itself
-            context.AddToOutput(EscCode.CreateCode(29, 107, (int)BarcodeType, _data.Length));
-            context.AddToOutput(new TextElement(_data));
-            */
+            if (context.Report.Dialect is StarLineDialect) {
+
+                byte bCode = 0;
+                switch (BarcodeType) {
+                    case BarcodeType.CODABAR: bCode = 255; break;
+                    case BarcodeType.CODE128: bCode = 6; break;
+                    case BarcodeType.CODE39: bCode = 4; break;
+                    case BarcodeType.CODE93: bCode = 7; break;
+                    case BarcodeType.EAN13: bCode = 3; break;
+                    case BarcodeType.EAN8: bCode = 2; break;
+                    case BarcodeType.ITF: bCode = 5; break;
+                    case BarcodeType.UPC_A: bCode = 0; break;
+                    case BarcodeType.UPC_E: bCode = 1; break;
+                    default: bCode = 255; break;
+                }
+
+                byte position = 1;
+                if (HriPosition != BarcodeHriPosition.DoNotPrint) position = 2;
+
+                if (bCode != 255) {
+                    context.AddToOutput(this, new EscCode(27, 98, bCode, position, (byte)Width, (byte)Height));
+                    context.AddToOutput(this, new TextElement(_data));
+                    context.AddToOutput(this, new EscCode(30));
+                }
+
+            }
+            else if (context.Report.Dialect is ESCPosDialect) {
+                // hri characters
+                context.AddToOutput(this, new EscCode(29, 102, (byte)HriFont));
+                context.AddToOutput(this, new EscCode(29, 72, (byte)HriPosition));
+                // height of the code
+                context.AddToOutput(this, new EscCode(29, 104, (byte)Math.Min(Height, 255)));
+                // width of the code
+                context.AddToOutput(this, new EscCode(29, 119, (byte)Math.Min(Width, 6)));
+                // and code itself
+                context.AddToOutput(this, new EscCode(29, 107, (byte)BarcodeType, (byte)_data.Length));
+                context.AddToOutput(this, new TextElement(_data));
+            }
         }
 
         string _data = null;

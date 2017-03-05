@@ -22,11 +22,19 @@ namespace mReporterLib
 
         public override void Render(RenderContext context)
         {
-            if (LineSpace == null) {
-                context.AddToOutput(this, new EscCode(27, 50));
+            if (context.Report.Dialect is StarLineDialect) {
+
+
             }
             else {
-                context.AddToOutput(this,new EscCode(27, 51, LineSpace.Value));
+
+                if (LineSpace == null) {
+                    context.AddToOutput(this, new EscCode(27, 50));
+                }
+                else {
+                    context.AddToOutput(this, new EscCode(27, 51, LineSpace.Value));
+                }
+
             }
         }
 

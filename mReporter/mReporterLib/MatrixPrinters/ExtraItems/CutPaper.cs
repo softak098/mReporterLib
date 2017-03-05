@@ -5,18 +5,31 @@ using System.Text;
 
 namespace mReporterLib
 {
+
+    public enum CutPaperMode : byte
+    {
+        Full = 0, Partial = 1, FeedAndFull = 2, FeedAndPartial = 3
+    }
+
     public class CutPaper : ReportItem
     {
-        public CutPaper() : base(ReportItemType.UserDefined)
-        { }
+        CutPaperMode _mode;
+
+        public CutPaper(CutPaperMode mode) : base(ReportItemType.UserDefined)
+        {
+            _mode = mode;
+        }
 
         public override void Render(RenderContext context)
         {
-            /*
-            var l=context.AddToOutput(this, EscCode.CreateCode(29, 86, 0));
-            l.AppendNewLine = false;
-            return l;
-            */
+            if (context.Report.Dialect is StarLineDialect) {
+
+                context.AddToOutput(this, new EscCode(27, 100, (byte)_mode));
+
+            }
+            else {
+                context.AddToOutput(this, new EscCode(29, 86, (byte)_mode));
+            }
         }
     }
 }

@@ -35,7 +35,17 @@ namespace mReporterLib
         public override void Render(RenderContext context)
         {
             context.AddToOutput(this, context.Report.Dialect.Align(this.LogoAlign));
-            context.AddToOutput(this, new EscCode(28, 112, _logoIndex, (byte)_size));
+
+            if (context.Report.Dialect is StarLineDialect) {
+                context.AddToOutput(this, new EscCode(27, 28, 112, _logoIndex, (byte)_size));
+
+            }
+            else {
+
+
+                context.AddToOutput(this, new EscCode(28, 112, _logoIndex, (byte)_size));
+            }
+
         }
     }
 
