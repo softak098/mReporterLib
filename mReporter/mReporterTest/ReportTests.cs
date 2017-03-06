@@ -203,12 +203,25 @@ namespace mReporterTest
             });
             */
 
+            masterDetailGroup.AddItem(new Line(ReportItemType.Footer) {
+                Template = "12345678901234567890",
+            });
+            masterDetailGroup.AddItem(new Line(ReportItemType.Footer) {
+                Template = "12345678901234567890",
+                FontType = FontType.B
+            });
+            masterDetailGroup.AddItem(new Line(ReportItemType.Footer) {
+                Template = "12345678901234567890",
+                FontType = FontType.OCR
+            });
+
+
             rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN13, Data = "5032037076982", HriPosition= BarcodeHriPosition.Bellow });
             rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN8, Data = "5032370" });
 
             rpt.AddItem(new NVLogo(3, NVLogoSize.Normal) { LogoAlign = Align.Right });
 
-            //rpt.AddItem(new Image(@"E:\IMAGES\_vyrd11_54rozmery.jpg"));
+            rpt.AddItem(new Image(@"E:\IMAGES\_vyrd11_54rozmery.jpg"));
 
             //rpt.AddItem(new EmptySpace(EmptySpaceType.Line, 4));
             rpt.AddItem(new CutPaper(CutPaperMode.FeedAndFull));
@@ -217,15 +230,15 @@ namespace mReporterTest
             var rContext = rpt.Render();
             var pBuilder = rpt.BuildPages(rContext);
 
-            using (var fs = new FileStream(@"C:\TEMP\data.prn", FileMode.Create)) {
+            using (var fs = new FileStream(@"C:\TEMP\data_PK.prn", FileMode.Create)) {
 
                 pBuilder.OutputStream.WriteTo(fs);
 
             }
 
 
-            var data = pBuilder.OutputStream.ToArray();
-           RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
+            //var data = pBuilder.OutputStream.ToArray();
+           //RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
 
 
             /*

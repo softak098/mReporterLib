@@ -166,7 +166,7 @@ namespace mReporterLib
                     var styleInfo = context.Report.Dialect.FontStyle(valueData.Style);
                     var alignInfo = context.Report.Dialect.Align(_line.Alignment);
 
-                    lineBuilder.Append(firstLineValue,  alignInfo, styleInfo);
+                    lineBuilder.Append(firstLineValue, alignInfo, styleInfo);
 
                     //lineBuilder.Append(firstLineValue.ApplyEscCode(alignInfo, styleInfo));
                 }
@@ -201,7 +201,7 @@ namespace mReporterLib
 
                         if (applyStyle) {
                             var styleInfo = context.Report.Dialect.FontStyle(valueData.Style);
-                            lineBuilder.Append(nextLineValue,  styleInfo);
+                            lineBuilder.Append(nextLineValue, styleInfo);
                         }
                         else lineBuilder.Append(nextLineValue);
                     }
@@ -211,8 +211,9 @@ namespace mReporterLib
             var lineStyleInfo = context.Report.Dialect.FontStyle(_line.Style);
             var linePrintInfo = context.Report.Dialect.PrintStyle(_line.PrintStyle);
             var lineAlignInfo = context.Report.Dialect.Align(_line.Alignment);
+            var lineFontType = context.Report.Dialect.FontType(_line.FontType);
 
-            lineBuilder.Apply(lineAlignInfo, linePrintInfo, lineStyleInfo);
+            lineBuilder.Apply(lineFontType, lineAlignInfo, linePrintInfo, lineStyleInfo);
 
             /*
             foreach (var lineStr in lineBuilder.ToString().Split('\n')) {
