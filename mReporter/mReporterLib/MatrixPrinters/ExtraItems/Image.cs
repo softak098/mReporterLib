@@ -43,7 +43,9 @@ namespace mReporterLib
         {
 
             //_data = GetColumnFormatData(fileName);
-            _bitmap = (Bitmap)System.Drawing.Image.FromFile(fileName);
+            //_bitmap = (Bitmap)System.Drawing.Image.FromFile(fileName);
+
+            _data = GetRasterData(fileName);
 
         }
 
@@ -54,25 +56,25 @@ namespace mReporterLib
                 context.AddToOutput(this, new EscCode(27, 42, 114, 82));
                 // enter raster mode
                 context.AddToOutput(this, new EscCode(27, 42, 114, 65));
+                // top margin
+                context.AddToOutput(this, new EscCode(27, 42, 114, 116, (byte)'0', 0));
+                // left margin
+                context.AddToOutput(this, new EscCode(27, 42, 114, 109, 108, (byte)'0', 0));
+                // right margin
+                context.AddToOutput(this, new EscCode(27, 42, 114, 109, 114, (byte)'0', 0));
                 // quality - high speed
                 context.AddToOutput(this, new EscCode(27, 42, 114, 81, (byte)'0', 0));
                 // length - continuous
                 context.AddToOutput(this, new EscCode(27, 42, 114, 80, (byte)'0', 0));
+                // FF mode
+                context.AddToOutput(this, new EscCode(27, 42, 114, 70, (byte)'1', 0));
+                // EOT mode
+                context.AddToOutput(this, new EscCode(27, 42, 114, 69, (byte)'0', 0));
 
+                OutputRasterData(context);
 
-                StarBitmap bmp = new StarBitmap(_bitmap, false, 1000);
-                var data=bmp.getImageRasterDataForPrinting_Standard(true);
-
-                MemoryStream ms = new MemoryStream();
-                ms.Write(data, 0, data.Length);
-
-                //var dataLen = _data.Dots.Length / 8;
-                //int xH = dataLen / 256, xL = dataLen % 256;
-                //context.AddToOutput(this, new EscCode(98, (byte)xL, (byte)xH));
-
-                //PrintRasterData(context);
-                context.AddToOutput(this, new BinaryData(ms));
-
+                // EOT
+                context.AddToOutput(this, new EscCode(27, 12, 4));
                 // quit raster mode
                 context.AddToOutput(this, new EscCode(27, 42, 114, 66));
             }
@@ -179,12 +181,13 @@ namespace mReporterLib
 
         class _BitmapData
         {
+            internal List<byte[]> ImageLines;
             internal BitArray Dots;
             internal int Width;
             internal int Height;
         }
 
-        private static _BitmapData GetColumnFormatData(string bmpFileName)
+        private static _BitmapData GetBitmapData(string bmpFileName)
         {
             using (var bitmap = (Bitmap)System.Drawing.Image.FromFile(bmpFileName)) {
                 var threshold = 127;
@@ -215,6 +218,177 @@ namespace mReporterLib
 
         }
 
+        private static _BitmapData GetRasterData(string bmpFileName)
+        {
+            const int LUMINANCE_TRESHOLD = 127;
+
+            List<byte[]> imgLines = new List<byte[]>();
+
+            using (var bitmap = (Bitmap)System.Drawing.Image.FromFile(bmpFileName)) {
+
+                var extWidth = bitmap.Width - bitmap.Width % 8 + 8;
+                //var dots = new BitArray(extWidth * bitmap.Height);
+
+
+                for (var y = 0; y < bitmap.Height; y++) {
+
+                    var line = new byte[extWidth / 8];
+
+                    for (var x = 0; x < bitmap.Width; x++) {
+
+                        var color = bitmap.GetPixel(x, y);
+                        var luminance = (int)(color.R * 0.3 + color.G * 0.59 + color.B * 0.11);
+
+                        if (luminance < LUMINANCE_TRESHOLD)
+                            line[x / 8] |= (byte)(1 << (7 - x % 8));
+                    }
+
+                    imgLines.Add(line);
+                }
+
+                return new _BitmapData {
+                    ImageLines = imgLines,
+                    Height = bitmap.Height,
+                    Width = extWidth
+                };
+            }
+        }
+
+
+        void OutputRasterData(RenderContext context)
+        {
+            int emptyLines = 0;
+            MemoryStream ms = new MemoryStream();
+
+            for (int y = 0; y < _data.Height; y++) {
+
+                var lineData = _data.ImageLines[y];
+                int w = lineData.Length;
+
+                // strip out trailing zeroes - find last byte with data
+                while (w > 0) {
+                    if (lineData[--w] != 0) {
+                        w++;
+                        break;
+                    }
+                }
+
+                if (w == 0) emptyLines++;
+                else {
+                    if (emptyLines > 0) {
+                        ms.WriteByte(27);
+                        ms.WriteByte(42);
+                        ms.WriteByte(114);
+                        ms.WriteByte(89);
+
+                        var b = Encoding.ASCII.GetBytes(emptyLines.ToString());
+                        ms.Write(b, 0, b.Length);
+
+                        ms.WriteByte(0);
+
+                        emptyLines = 0;
+                    }
+
+                    // add output data of the line
+                    int xH = w / 256, xL = w % 256;
+
+                    ms.WriteByte(98);
+                    ms.WriteByte((byte)xL);
+                    ms.WriteByte((byte)xH);
+
+                    ms.Write(lineData, 0, w);
+                }
+            }
+
+            context.AddToOutput(this, new BinaryData(ms));
+
+
+            /*
+            for (int y = 0; y < height; y++) {
+                int pos = 0;
+
+                for (int x = 0; x < mWidth; x++) {
+                    byte constructedByte = 0x00;
+
+                    for (int j = 0; j < 8; j++) {
+                        Color pixel;
+                        constructedByte <<= 1;
+
+                        if (pos < width) {
+                            pixel = pixels[PixelIndex(pos, y)];
+
+                            if (pixelBrightness(pixel.R, pixel.G, pixel.B) < 127) {
+                                constructedByte |= 0x01;
+                            }
+                        }
+
+                        pos++;
+                    }
+
+                    constructedBytes[3 + x] = constructedByte;
+                }
+
+                int work = mWidth;
+
+                if (compressionEnable) {
+                    while (work != 0) {
+                        work--;
+
+                        if (constructedBytes[3 + work] != 0x00) {
+                            work++;
+                            break;
+                        }
+                    }
+                }
+
+                if (work != 0) {
+                    while (blank >= 1000) {
+                        list.Add(new byte[] { 0x1b, (byte)'*', (byte)'r', (byte)'Y', (byte)'1', (byte)'0', (byte)'0', (byte)'0', 0x00 });
+                        dataLength += 9;
+                        blank -= 1000;
+                    }
+
+                    if (blank != 0) {
+                        list.Add(new byte[] { 0x1b, (byte)'*', (byte)'r', (byte)'Y', (byte)('0' + blank / 100), (byte)('0' + (blank % 100) / 10), (byte)('0' + blank % 10), 0x00 });
+                        dataLength += 8;
+                    }
+
+                    blank = 0;
+
+                    constructedBytes[1] = (byte)(work % 256);
+                    constructedBytes[2] = (byte)(work / 256);
+
+                    list.Add(constructedBytes.ToArray());
+                    dataLength += 3 + mWidth;
+                }
+                else {
+                    blank++;
+                }
+            }
+
+            while (blank >= 1000) {
+                list.Add(new byte[] { 0x1b, (byte)'*', (byte)'r', (byte)'Y', (byte)'1', (byte)'0', (byte)'0', (byte)'0', 0x00 });
+                dataLength += 9;
+                blank -= 1000;
+            }
+
+            if (blank != 0) {
+                list.Add(new byte[] { 0x1b, (byte)'*', (byte)'r', (byte)'Y', (byte)('0' + blank / 100), (byte)('0' + (blank % 100) / 10), (byte)('0' + blank % 10), 0x00 });
+                dataLength += 8;
+            }
+
+            int distPosition = 0;
+            imageData = new byte[dataLength];
+            for (int i = 0; i < list.Count; i++) {
+                Array.Copy(list[i], 0, imageData, distPosition, list[i].Length);
+
+                //System.arraycopy(list.get(i), 0, imageData, distPosition, list.get(i).length);
+                distPosition += list[i].Length;
+            }
+
+            return imageData;
+            */
+        }
 
     }
 
@@ -230,8 +404,14 @@ namespace mReporterLib
         bool dithering;
         byte[] imageData;
 
+        Bitmap _bitmap;
+
         internal StarBitmap(Bitmap picture, bool supportDithering, int maxWidth)
         {
+
+            _bitmap = picture;
+
+
 
             height = picture.Height;
             width = picture.Width;
@@ -756,7 +936,7 @@ imagestarting[3] = (byte) byteWidth;
 
     return imageData;
     */
-}
+    }
 }
 
 

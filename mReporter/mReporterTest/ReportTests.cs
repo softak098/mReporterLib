@@ -221,7 +221,7 @@ namespace mReporterTest
 
             rpt.AddItem(new NVLogo(3, NVLogoSize.Normal) { LogoAlign = Align.Right });
 
-            rpt.AddItem(new Image(@"E:\IMAGES\_vyrd11_54rozmery.jpg"));
+            //rpt.AddItem(new Image(@"E:\IMAGES\NLMlogoInverse.bmp"));
 
             //rpt.AddItem(new EmptySpace(EmptySpaceType.Line, 4));
             rpt.AddItem(new CutPaper(CutPaperMode.FeedAndFull));
@@ -237,8 +237,8 @@ namespace mReporterTest
             }
 
 
-            //var data = pBuilder.OutputStream.ToArray();
-           //RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
+            var data = pBuilder.OutputStream.ToArray();
+            RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
 
 
             /*
@@ -253,6 +253,32 @@ namespace mReporterTest
             //helper.LPR(data);
 
             // usbprn:Star TSP600 Cutter (TSP643)
+        }
+
+        [TestMethod()]
+        public void Image()
+        {
+            Report rpt = new Report(new StarLineDialect());
+            rpt.PageHeight = 0;
+            rpt.TextEncoding = Encoding.GetEncoding(852);
+
+            rpt.AddItem(new CodePage(5));
+
+            rpt.AddItem(new Image(@"E:\PROJEKTY\NLMIS\Allegro_Logo.png"));
+
+            // finaly render and build output
+            var rContext = rpt.Render();
+            var pBuilder = rpt.BuildPages(rContext);
+
+            using (var fs = new FileStream(@"C:\TEMP\data_image.prn", FileMode.Create)) {
+
+                pBuilder.OutputStream.WriteTo(fs);
+
+            }
+
+
+            var data = pBuilder.OutputStream.ToArray();
+            RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
         }
 
         [TestMethod()]
