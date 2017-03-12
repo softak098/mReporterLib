@@ -38,6 +38,7 @@ namespace mReporterLib
         static readonly EscCode _alignJustify = new EscCode(27, (byte)'a', (byte)'3');
 
         static readonly EscCode _lineFeed = new EscCode(10);
+        static readonly EscCode _formFeed = new EscCode(12);
 
         public PrinterModel PrinterModel { get; set; }
 
@@ -50,7 +51,7 @@ namespace mReporterLib
 
         public virtual EscCode Reset() { return new EscCode(27, (byte)'@'); }
 
-        public virtual EscCode FormFeed() { return new EscCode(12); }
+        public virtual EscCode FormFeed => _formFeed;
         public virtual EscCode LineFeed => _lineFeed;
 
         public virtual EscCodePair PrintStyle(PrintStyle style) { return null; }
@@ -132,8 +133,7 @@ namespace mReporterLib
                 case mReporterLib.FontStyle.Underline: return _fontStyleUnderline;
                 case mReporterLib.FontStyle.UnderlineDouble: return _fontStyleUnderlineDouble;
                 case mReporterLib.FontStyle.Inverse: return _fontStyleInverse;
-                default:
-                    break;
+                default: break;
             }
             return null;
         }
@@ -150,6 +150,12 @@ namespace mReporterLib
         static readonly EscCode _alignLeft = new EscCode(27, 29, 97, 0);
         static readonly EscCode _alignRight = new EscCode(27, 29, 97, 2);
         static readonly EscCode _alignCenter = new EscCode(27, 29, 97, 1);
+
+        static readonly EscCodePair _printStylePitch12 = new EscCodePair(new EscCode(27, 77), new EscCode(27, 77));
+        static readonly EscCodePair _printStylePitch15 = new EscCodePair(new EscCode(27, 80), new EscCode(27, 77));
+        static readonly EscCodePair _printStylePitch16 = new EscCodePair(new EscCode(27, 58), new EscCode(27, 77));
+        static readonly EscCodePair _printStyleDoubleHeight = new EscCodePair(new EscCode(27, 104, 1), new EscCode(27, 104, 0));
+        static readonly EscCodePair _printStyleDoubleWidth = new EscCodePair(new EscCode(27, 87, 1), new EscCode(27, 87, 0));
 
         public StarLineDialect() : base(PrinterModel.StarLineT) { }
 
@@ -169,10 +175,8 @@ namespace mReporterLib
                 case mReporterLib.FontStyle.Underline: return _fontStyleUnderline;
                 case mReporterLib.FontStyle.Upperline: return _fontStyleUpperline;
                 case mReporterLib.FontStyle.Inverse: return _fontStyleInverse;
-                default:
-                    break;
+                default: return null;
             }
-            return null;
         }
 
         public override EscCode Align(Align style)
@@ -183,6 +187,19 @@ namespace mReporterLib
                 case mReporterLib.Align.Right: return _alignRight;
                 case mReporterLib.Align.Center: return _alignCenter;
             }
+        }
+
+        public override EscCodePair PrintStyle(PrintStyle style)
+        {
+            switch (style) {
+                case mReporterLib.PrintStyle.Pitch12: return _printStylePitch12;
+                case mReporterLib.PrintStyle.Pitch15: return _printStylePitch15;
+                case mReporterLib.PrintStyle.Pitch16: return _printStylePitch16;
+                case mReporterLib.PrintStyle.DoubleHeight: return _printStyleDoubleHeight;
+                case mReporterLib.PrintStyle.DoubleWidth: return _printStyleDoubleWidth;
+                default: break;
+            }
+            return null;
         }
 
     }

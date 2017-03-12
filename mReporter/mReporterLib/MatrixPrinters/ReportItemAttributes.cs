@@ -15,7 +15,7 @@ namespace mReporterLib
         /// <summary>
         /// Do not set line print style, leave setting from lines before
         /// </summary>
-        AsBefore, Pica, Elite, Condensed
+        AsBefore, Pica, Elite, Condensed, Pitch12, Pitch15, Pitch16, DoubleHeight, DoubleWidth
     }
 
     public enum FontType : byte

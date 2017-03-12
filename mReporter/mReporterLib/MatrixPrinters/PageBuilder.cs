@@ -12,7 +12,6 @@ namespace mReporterLib
         const string TOTAL_PAGE_NUMBER_PLACEHOLDER = "$T";
 
         Report _report;
-        EscCode _ffSequence;
 
         MemoryStream _outputStream;
         public MemoryStream OutputStream => _outputStream;
@@ -30,7 +29,6 @@ namespace mReporterLib
         public PageBuilder(Report report, Encoding textEncoding, int pageHeight = 66)
         {
             _report = report;
-            _ffSequence = _report.Dialect.FormFeed();
 
             PageHeight = pageHeight;
             CurrentLine = 1;
@@ -117,28 +115,27 @@ namespace mReporterLib
         internal void Reset()
         {
             _report.Dialect.Reset().WriteTo(_outputStream, _textEncoding);
-            //_output.Append(_report.Dialect.Reset().Start); // we start with reseting printer
         }
 
         void AddNewPage(RenderContext context, bool addNextLines)
         {
-            /*
             // insert page footer
             LineElement footerLine = GetFooterLine();
-            int footerLines = footerLine != null ? footerLine.Lines.Count : 0;
+            int footerLines = footerLine != null ? footerLine.LineCount : 0;
             if (footerLine != null) {
                 // add several empty lines to place footer on bottom of page
                 for (int i = 0; i < PageHeight - footerLines - CurrentLine + 1; i++) {
 
-                    _output.AppendLine();
+                    context.Report.Dialect.LineFeed.WriteTo(_outputStream, null);
+
                 }
                 // place footer line(s) to output
-                AddToOutput(footerLine.Lines, 0); // !!! - do not replace with BuildInternal
+                AddToOutput(footerLine, 0); // !!! - do not replace with BuildInternal
             }
             // first replace page number placeholders in current output
             ReplacePageNumber();
             // insert new page control char
-            _output.Append(_ffSequence.Start);
+            context.Report.Dialect.FormFeed.WriteTo(_outputStream, null);
 
             if (addNextLines) {
                 // update counters
@@ -151,24 +148,27 @@ namespace mReporterLib
                 // repeat item(s) marked as RepeatOnNewPage
                 RepeatItemsOnNewPage(context);
             }
-            */
         }
 
         void RepeatItemsOnNewPage(RenderContext context, LineElement rootLine = null)
         {
-            /*
-            foreach (var oLine in context.GetLines(rootLine)) {
-                var lineItem = oLine.SourceReportItem as Line;
+            foreach (var el in context.GetElements(rootLine)) {
 
-                if (lineItem != null && lineItem.RepeatOnNewPage) {
+                if (el is LineElement lineEl) {
 
-                    BuildInternal(context, oLine);
+
+                    if (el.SourceReportItem is Line lineItem && lineItem.RepeatOnNewPage) {
+
+                        BuildLines(context, lineEl);
+
+                    }
+
+                    RepeatItemsOnNewPage(context, lineEl);
 
                 }
+                else el.WriteTo(_outputStream, _textEncoding);
 
-                RepeatItemsOnNewPage(context, oLine);
             }
-            */
         }
 
         #region header & footer lines
@@ -212,47 +212,42 @@ namespace mReporterLib
 
         internal void ReplacePageNumber()
         {
-            //_output.Replace(PAGE_NUMBER_PLACEHOLDER, CurrentPage.ToString().PadLeft(2));
+            ReplaceInStream('$', 'P', CurrentPage);
         }
 
         internal void ReplaceTotalPageNumber()
         {
-            //_output.Replace(TOTAL_PAGE_NUMBER_PLACEHOLDER, CurrentPage.ToString().PadLeft(2));
+            ReplaceInStream('$', 'T', CurrentPage);
+        }
+
+        void ReplaceInStream(int prefix, int suffix, int value)
+        {
+            _outputStream.Seek(0, SeekOrigin.Begin);
+
+            int b;
+            bool found = false;
+            while ((b = _outputStream.ReadByte()) != -1) {
+
+                if (found && b == suffix) {
+                    byte[] buffer = Encoding.ASCII.GetBytes(value.ToString().PadLeft(2));
+
+                    _outputStream.Seek(-2, SeekOrigin.Current);
+                    _outputStream.Write(buffer, 0, 2);
+                    found = false;
+                }
+                else if (b == prefix) found = true;
+                else found = false;
+
+            }
+            _outputStream.Seek(0, SeekOrigin.End);
         }
 
         void AddToOutput(LineElement line, int from, int count = int.MaxValue, bool addNewLine = true)
         {
-
             count = Math.Min(count, line.LineCount - from);
-
             line.WriteTo(_outputStream, _textEncoding, from, count);
-            /*
-            for (int i = 0; i < count; i++) {
-
-
-                line.Lines[i + from].
-
-                /*
-                if (addNewLine) {
-                    _output.AppendLine(lines[i + from]);
-                }
-                else {
-                    _output.Append(lines[i + from]);
-                }
-            }
-            */
-
-
         }
 
-
-        /// <summary>
-        /// Final output from generator
-        /// </summary>
-        public string Output
-        {
-            get { return ""; } 
-        }
 
     }
 }

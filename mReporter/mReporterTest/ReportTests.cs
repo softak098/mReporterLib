@@ -74,7 +74,7 @@ namespace mReporterTest
 
 
             //var data = pBuilder.OutputStream.ToArray();
-              //RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
+            //RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
         }
 
 
@@ -103,8 +103,9 @@ namespace mReporterTest
             int sumQuantity = 0;
             double sumPrice = 0;
 
-            var masterDetailGroup = new Group<ReceiptLineData>();
-            masterDetailGroup.DataSource = ReceiptLineData.CreateData();
+            var masterDetailGroup = new Group<ReceiptLineData>() {
+                DataSource = ReceiptLineData.CreateData()
+            };
 
             masterDetailGroup.AddItem(new Line(ReportItemType.Header) {
                 Style = FontStyle.Inverse,
@@ -144,10 +145,8 @@ namespace mReporterTest
 
             });
 
-            // add detail group to report
-            rpt.AddItem(masterDetailGroup);
             // add footer with summary
-            rpt.AddItem(new Line(ReportItemType.ReportFooter) {
+            masterDetailGroup.AddItem(new Line(ReportItemType.Footer) {
 
                 Template = "Total            : ___ _________",
                 GetData = e => {
@@ -163,11 +162,14 @@ namespace mReporterTest
 
             });
 
+            // add detail group to report
+            rpt.AddItem(masterDetailGroup);
+
             // barcode line test
             var barcodeItem = new Barcode() {
                 BarcodeType = BarcodeType.ITF,
-                Data= "43657621",
-                Width=7,
+                Data = "43657621",
+                Width = 7,
                 //HriPosition= BarcodeHriPosition.Above
             };
             rpt.AddItem(barcodeItem);
@@ -203,28 +205,35 @@ namespace mReporterTest
             });
             */
 
-            masterDetailGroup.AddItem(new Line(ReportItemType.Footer) {
+            rpt.AddItem(new Line(ReportItemType.Footer) {
                 Template = "12345678901234567890",
             });
-            masterDetailGroup.AddItem(new Line(ReportItemType.Footer) {
-                Template = "12345678901234567890",
-                FontType = FontType.B
+            rpt.AddItem(new Line(ReportItemType.Footer) {
+                Template = "1234567890",
+                FontType = FontType.B,
+                PrintStyle= PrintStyle.DoubleWidth
             });
-            masterDetailGroup.AddItem(new Line(ReportItemType.Footer) {
+            rpt.AddItem(new Line(ReportItemType.Footer) {
                 Template = "12345678901234567890",
-                FontType = FontType.OCR
+                FontType = FontType.OCR,
+                PrintStyle= PrintStyle.DoubleHeight
             });
 
 
-            rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN13, Data = "5032037076982", HriPosition= BarcodeHriPosition.Bellow });
+            rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN13, Data = "5032037076982", HriPosition = BarcodeHriPosition.Bellow });
             rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN8, Data = "5032370" });
 
             rpt.AddItem(new NVLogo(3, NVLogoSize.Normal) { LogoAlign = Align.Right });
 
-            //rpt.AddItem(new Image(@"E:\IMAGES\NLMlogoInverse.bmp"));
+            //rpt.AddItem(new Image(@"E:\IMAGES\_vyrd12_54tropico.jpg"));
+
+            rpt.AddItem(new Line(ReportItemType.Footer) {
+                Alignment = Align.Left,
+                Template = "Back in text mode....",
+            });
 
             //rpt.AddItem(new EmptySpace(EmptySpaceType.Line, 4));
-            rpt.AddItem(new CutPaper(CutPaperMode.FeedAndFull));
+            //rpt.AddItem(new CutPaper(CutPaperMode.FeedAndFull));
 
             // finaly render and build output
             var rContext = rpt.Render();
@@ -278,7 +287,7 @@ namespace mReporterTest
 
 
             var data = pBuilder.OutputStream.ToArray();
-            RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
+            //RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
         }
 
         [TestMethod()]
@@ -362,7 +371,7 @@ _______________________________________________________________________________"
             detailGroup.DataSource = iData.Lines;
 
             detailGroup.AddItem(new Line(ReportItemType.Header) {
-                PrintStyle= PrintStyle.Pica,
+                PrintStyle = PrintStyle.Pica,
                 RepeatOnNewPage = true,
                 Template = "--------------------------------------------------------------------------------"
             });
@@ -377,7 +386,7 @@ _______________________________________________________________________________"
 
             Line detailGroupDetail;
             detailGroup.AddItem(detailGroupDetail = new Line(ReportItemType.Detail) {
-                PageBreakInside=false,
+                PageBreakInside = false,
                 Template = "_______________________________________________________________ ___________ ____",
                 GetData = (e) => {
                     var d = e.Data as InvoiceDetail;
@@ -395,8 +404,8 @@ Jméno:                               Podpis:                                   
 
 
 ";
-                        
-                        
+
+
                         //string.Concat(d.Code, " ", d.Name, "\n", d.Description, "\n", d.Description, "\n", d.Description);
                     }
                     else if (e.Index == 1) {
@@ -458,13 +467,6 @@ Jméno:                               Podpis:                                   
             // finaly render and build output
             var rContext = rpt.Render();
             var pBuilder = rpt.BuildPages(rContext);
-
-            using (var fs = new FileStream(@"C:\TEMP\data2.prn", FileMode.Create)) {
-                using (var sw = new StreamWriter(fs, Encoding.ASCII)) {
-                    sw.Write(pBuilder.Output);
-                    sw.Close();
-                }
-            }
 
             /*
             byte[] printData = Encoding.ASCII.GetBytes(pBuilder.Output);

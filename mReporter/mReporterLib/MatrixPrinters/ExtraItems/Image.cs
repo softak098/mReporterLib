@@ -69,7 +69,7 @@ namespace mReporterLib
                 // FF mode
                 context.AddToOutput(this, new EscCode(27, 42, 114, 70, (byte)'1', 0));
                 // EOT mode
-                context.AddToOutput(this, new EscCode(27, 42, 114, 69, (byte)'0', 0));
+                context.AddToOutput(this, new EscCode(27, 42, 114, 69, (byte)'1', 0));
 
                 OutputRasterData(context);
 
@@ -265,7 +265,7 @@ namespace mReporterLib
                 var lineData = _data.ImageLines[y];
                 int w = lineData.Length;
 
-                // strip out trailing zeroes - find last byte with data
+                // strip trailing zeroes - find last byte with data
                 while (w > 0) {
                     if (lineData[--w] != 0) {
                         w++;
@@ -275,19 +275,7 @@ namespace mReporterLib
 
                 if (w == 0) emptyLines++;
                 else {
-                    if (emptyLines > 0) {
-                        ms.WriteByte(27);
-                        ms.WriteByte(42);
-                        ms.WriteByte(114);
-                        ms.WriteByte(89);
-
-                        var b = Encoding.ASCII.GetBytes(emptyLines.ToString());
-                        ms.Write(b, 0, b.Length);
-
-                        ms.WriteByte(0);
-
-                        emptyLines = 0;
-                    }
+                    OutputBlankLines(ref emptyLines, ms, context);
 
                     // add output data of the line
                     int xH = w / 256, xL = w % 256;
@@ -299,97 +287,29 @@ namespace mReporterLib
                     ms.Write(lineData, 0, w);
                 }
             }
+            OutputBlankLines(ref emptyLines, ms, context);
 
             context.AddToOutput(this, new BinaryData(ms));
-
-
-            /*
-            for (int y = 0; y < height; y++) {
-                int pos = 0;
-
-                for (int x = 0; x < mWidth; x++) {
-                    byte constructedByte = 0x00;
-
-                    for (int j = 0; j < 8; j++) {
-                        Color pixel;
-                        constructedByte <<= 1;
-
-                        if (pos < width) {
-                            pixel = pixels[PixelIndex(pos, y)];
-
-                            if (pixelBrightness(pixel.R, pixel.G, pixel.B) < 127) {
-                                constructedByte |= 0x01;
-                            }
-                        }
-
-                        pos++;
-                    }
-
-                    constructedBytes[3 + x] = constructedByte;
-                }
-
-                int work = mWidth;
-
-                if (compressionEnable) {
-                    while (work != 0) {
-                        work--;
-
-                        if (constructedBytes[3 + work] != 0x00) {
-                            work++;
-                            break;
-                        }
-                    }
-                }
-
-                if (work != 0) {
-                    while (blank >= 1000) {
-                        list.Add(new byte[] { 0x1b, (byte)'*', (byte)'r', (byte)'Y', (byte)'1', (byte)'0', (byte)'0', (byte)'0', 0x00 });
-                        dataLength += 9;
-                        blank -= 1000;
-                    }
-
-                    if (blank != 0) {
-                        list.Add(new byte[] { 0x1b, (byte)'*', (byte)'r', (byte)'Y', (byte)('0' + blank / 100), (byte)('0' + (blank % 100) / 10), (byte)('0' + blank % 10), 0x00 });
-                        dataLength += 8;
-                    }
-
-                    blank = 0;
-
-                    constructedBytes[1] = (byte)(work % 256);
-                    constructedBytes[2] = (byte)(work / 256);
-
-                    list.Add(constructedBytes.ToArray());
-                    dataLength += 3 + mWidth;
-                }
-                else {
-                    blank++;
-                }
-            }
-
-            while (blank >= 1000) {
-                list.Add(new byte[] { 0x1b, (byte)'*', (byte)'r', (byte)'Y', (byte)'1', (byte)'0', (byte)'0', (byte)'0', 0x00 });
-                dataLength += 9;
-                blank -= 1000;
-            }
-
-            if (blank != 0) {
-                list.Add(new byte[] { 0x1b, (byte)'*', (byte)'r', (byte)'Y', (byte)('0' + blank / 100), (byte)('0' + (blank % 100) / 10), (byte)('0' + blank % 10), 0x00 });
-                dataLength += 8;
-            }
-
-            int distPosition = 0;
-            imageData = new byte[dataLength];
-            for (int i = 0; i < list.Count; i++) {
-                Array.Copy(list[i], 0, imageData, distPosition, list[i].Length);
-
-                //System.arraycopy(list.get(i), 0, imageData, distPosition, list.get(i).length);
-                distPosition += list[i].Length;
-            }
-
-            return imageData;
-            */
         }
 
+        void OutputBlankLines(ref int emptyLines, Stream ms, RenderContext context)
+        {
+            if (emptyLines < 1) return;
+
+            if (context.Report.Dialect is StarLineDialect) {
+                ms.WriteByte(27);
+                ms.WriteByte(42);
+                ms.WriteByte(114);
+                ms.WriteByte(89);
+
+                var b = Encoding.ASCII.GetBytes(emptyLines.ToString());
+                ms.Write(b, 0, b.Length);
+
+                ms.WriteByte(0);
+            }
+
+            emptyLines = 0;
+        }
     }
 
 
@@ -430,6 +350,8 @@ namespace mReporterLib
 
 
         }
+
+
 
         private int pixelBrightness(int red, int green, int blue)
         {
@@ -550,121 +472,7 @@ namespace mReporterLib
             return imageData;
         }
 
-        /*
-        public byte[] getImageRasterDataForPrinting_graphic(boolean compressionEnable)
-        {
-            if (imageData != null) {
-                return imageData;
-            }
-
-            // Converts the image to a Monochrome image using a Steinbert Dithering algorithm. This call can be removed but it that will also remove any dithering.
-            if (dithering == true) {
-                ConvertToMonochromeSteinbertDithering((float)1.5);
-            }
-
-            int mWidth = width / 8;
-            if ((width % 8) != 0) {
-                mWidth++;
-            }
-
-            ArrayList<byte[]> list = new ArrayList<byte[]>();
-            int dataLength = 0;
-            byte[] constructedBytes = new byte[RASTERCOMMANDHEADER + mWidth];
-
-            constructedBytes[0] = 0x1b;
-            constructedBytes[1] = 0x1d;
-            constructedBytes[2] = 'S';
-            constructedBytes[3] = 0x01;
-            constructedBytes[4] = 0x00; // xL
-            constructedBytes[5] = 0x00; // xH
-            constructedBytes[6] = 0x01; // yL
-            constructedBytes[7] = 0x00; // yH
-            constructedBytes[8] = 0x00;
-
-            int blank = 0;
-
-            for (int y = 0; y < height; y++) {
-                int pos = 0;
-
-                for (int x = 0; x < mWidth; x++) {
-                    byte constructedByte = 0x00;
-
-                    for (int j = 0; j < 8; j++) {
-                        int pixel;
-                        constructedByte = (byte)(constructedByte << 1);
-
-                        if (pos < width) {
-                            pixel = pixels[PixelIndex(pos, y)];
-
-                            if (pixelBrightness(Color.red(pixel), Color.green(pixel), Color.blue(pixel)) < 127) {
-                                constructedByte |= 0x01;
-                            }
-                        }
-
-                        pos++;
-                    }
-
-                    constructedBytes[RASTERCOMMANDHEADER + x] = constructedByte;
-                }
-
-                int work = mWidth;
-
-                if (compressionEnable) {
-                    while (work != 0) {
-                        work--;
-
-                        if (constructedBytes[RASTERCOMMANDHEADER + work] != 0x00) {
-                            work++;
-                            break;
-                        }
-                    }
-                }
-
-                if (work != 0) {
-                    while (blank >= 255) {
-                        list.add(new byte[] { 0x1b, 'I', (byte)0xff });
-                        dataLength += 3;
-                        blank -= 255;
-                    }
-
-                    if (blank != 0) {
-                        list.add(new byte[] { 0x1b, 'I', (byte)blank });
-                        dataLength += 3;
-                    }
-
-                    blank = 0;
-
-                    constructedBytes[4] = (byte)(mWidth % 256);
-                    constructedBytes[5] = (byte)(mWidth / 256);
-
-                    list.add(constructedBytes.clone());
-                    dataLength += RASTERCOMMANDHEADER + mWidth;
-                }
-                else {
-                    blank++;
-                }
-            }
-
-            while (blank >= 255) {
-                list.add(new byte[] { 0x1b, 'I', (byte)0xff });
-                dataLength += 3;
-                blank -= 255;
-            }
-
-            if (blank != 0) {
-                list.add(new byte[] { 0x1b, 'I', (byte)blank });
-                dataLength += 3;
-            }
-
-            int distPosition = 0;
-            imageData = new byte[dataLength];
-            for (int i = 0; i < list.size(); i++) {
-                System.arraycopy(list.get(i), 0, imageData, distPosition, list.get(i).length);
-                distPosition += list.get(i).length;
-            }
-
-            return imageData;
-        }
+   /*
 
         public byte[] getImageESCPOSRasterDataForPrinting()
         {
@@ -740,202 +548,8 @@ namespace mReporterLib
             return imageData;
         }
 
-        public byte[] getImageEscPosDataForPrinting(boolean compressionEnable, boolean pageModeEnable) throws StarIOPortException
-        {
-		if (imageData != null) {
-                return imageData;
-            }
-
-		if (dithering == true) {
-                ConvertToMonochromeSteinbertDithering((float)1.5);
-            }
-
-
-        int w = width / 8;
-		if ((width % 8) != 0)
-			w++;
-		int mWidth = w * 8;
-
-        // int pixelSize = 3;
-        int byteWidth = mWidth / 8;
-        // u_int8_t n1 = (u_int8_t)(byteWidth % 256);
-        // u_int8_t n2 = (u_int8_t)(byteWidth / 256);
-
-        byte[] data;
-        ArrayList<Byte> someData = new ArrayList<Byte>();
-
-        Byte[] beginingBytes;
-		if (true == pageModeEnable) {
-			beginingBytes = new Byte[] { 0x1b, 0x40, // ESC @
-					0x1b, 0x4c, // ESC L (Start Page mode)
-					0x1b, 0x57, // ESC W xL xH yL yH dxL dxH dyL dyH (Setting of page mode printable area)
-					0x00, 0x00, 0x00, 0x00, (byte) (mWidth % 256), (byte) (mWidth / 256), (byte) ((height + 40) % 256), (byte) ((height + 40) / 256), 0x1b, 0x58, 0x32, 0x18 }; // ESC X 2 n
-} else {
-			beginingBytes = new Byte[] { 0x1b, 0x40 };
-		}
-
-		for (int count = 0; count<beginingBytes.length; count++) {
-			someData.add(beginingBytes[count]);
-		}
-
-		int totalRowCount = 0;
-
-		while (totalRowCount<height) {
-			data = new byte[byteWidth * 24];
-
-			int pos = 0;
-
-			for (int y = 0; y< 24; y++) {
-				if (totalRowCount<height) {
-					for (int x = 0; x<byteWidth; x++) {
-						int bits = 8;
-
-						if (((byteWidth - 1) == x) && (width<mWidth)) {
-							bits = 8 - (mWidth - width);
-						}
-
-						byte work = 0x00;
-
-						for (int xbit = 0; xbit<bits; xbit++) {
-							work <<= 1;
-
-							int pixel = pixels[PixelIndex(x * 8 + xbit, totalRowCount)];
-
-							if (pixelBrightness(Color.red(pixel), Color.green(pixel), Color.blue(pixel)) < 127) {
-								work |= 0x01;
-							}
-						}
-
-						data[pos++] = work;
-					}
-				}
-				totalRowCount++;
-			}
-
-			byte[] command = null;
-
-			if (true == compressionEnable) {
-				String portSettings = "portable;escpos";
-
-				try {
-					command = StarIOPort.compressRasterData(byteWidth, 24, data, portSettings);
-					// command = StarIOPort.generateBitImageCommand(byteWidth, 24, data, portSettings); // Deprecated API
-				} catch (StarIOPortException e) {
-					throw new StarIOPortException(e.getMessage());
-				}
-			}
-
-			if (null != command) {
-				for (int count = 0; count<command.length; count++) {
-					someData.add(command[count]);
-				}
-			} else {
-				Byte[] imagestarting = new Byte[] { 0x1b, 0x58, 0x34, 0, 24 };
-imagestarting[3] = (byte) byteWidth;
-
-				for (int count = 0; count<imagestarting.length; count++) {
-					someData.add(imagestarting[count]);
-				}
-
-				for (int count = 0; count<data.length; count++) {
-					someData.add(data[count]);
-				}
-
-				byte[] imageData4 = { 0x1b, 0x58, 0x32, 0x18 };
-
-				for (int count = 0; count<imageData4.length; count++) {
-					someData.add(imageData4[count]);
-				}
-			}
-
-		}
-
-		byte imageData5[] = { 0x0c, // FF (printing of page mode and return printing of standard mode) 
-				0x1b, 0x4A, 0x28 };
-
-		for (int count = 0; count<imageData5.length; count++) {
-			someData.add(imageData5[count]);
-		}
-
-		imageData = new byte[someData.size()];
-		for (int count = 0; count<someData.size(); count++) {
-			imageData[count] = someData.get(count);
-		}
-
-		return imageData;
-	}
-
-	public byte[] getImageImpactPrinterForPrinting()
-{
-    if (imageData != null) {
-        return imageData;
-    }
-
-    if (dithering == true) {
-        ConvertToMonochromeSteinbertDithering((float)1.5);
-    }
-
-    int mHeight = height / 8;
-    if ((height % 8) != 0) {
-        mHeight++;
-    }
-
-    ArrayList<Byte> data = new ArrayList<Byte>();
-    int heightLocation = 0;
-    int bitLocation = 0;
-    byte nextByte = 0;
-
-    int cwidth = width;
-    if (cwidth > 199) {
-        cwidth = 199;
-    }
-
-    byte[] cancelColor = new byte[] { 0x1b, 0x1e, 'C', 48 };
-    for (int count = 0; count < cancelColor.length; count++) {
-        data.add(cancelColor[count]);
-    }
-
-    for (int x = 0; x < mHeight; x++) {
-        byte[] imageCommand = new byte[] { 0x1b, 'K', (byte)cwidth, 0 };
-        for (int count = 0; count < imageCommand.length; count++) {
-            data.add(imageCommand[count]);
-        }
-
-        for (int w = 0; w < cwidth; w++) {
-            for (int j = 0; j < 8; j++) {
-                int pixel;
-                if (j + (heightLocation * 8) < height) {
-                    pixel = pixels[PixelIndex(w, j + (heightLocation * 8))];
-                }
-                else {
-                    pixel = Color.WHITE;
-                }
-                if (pixelBrightness(Color.red(pixel), Color.green(pixel), Color.blue(pixel)) < 127) {
-                    nextByte = (byte)(nextByte | (1 << (7 - bitLocation)));
-                }
-                bitLocation++;
-                if (bitLocation == 8) {
-                    bitLocation = 0;
-                    data.add(nextByte);
-                    nextByte = 0;
-                }
-
-            }
-        }
-        heightLocation++;
-        byte[] lineFeed = new byte[] { 0x1b, 0x49, 0x10 };
-        for (int count = 0; count < lineFeed.length; count++) {
-            data.add(lineFeed[count]);
-        }
-    }
-
-    imageData = new byte[data.size()];
-    for (int count = 0; count < imageData.length; count++) {
-        imageData[count] = data.get(count);
-    }
-
-    return imageData;
     */
+
     }
 }
 
