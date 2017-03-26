@@ -8,7 +8,7 @@ namespace mReporterLib
 
     public enum CutPaperMode : byte
     {
-        Full = 0, Partial = 1, FeedAndFull = 2, FeedAndPartial = 3
+        Full = 0, Partial = 1, FeedAndFull = 2, FeedAndPartial = 3, FeedAndFullBackfeed = 103, FeedAndPartialBackfeed = 104
     }
 
     public class CutPaper : ReportItem
@@ -28,7 +28,17 @@ namespace mReporterLib
 
             }
             else {
-                context.AddToOutput(this, new EscCode(29, 86, (byte)_mode));
+                byte function = (byte)_mode;
+                if (_mode == CutPaperMode.FeedAndFull) function = 64;
+                else if (_mode == CutPaperMode.FeedAndPartial) function = 65;
+
+                if (function > 1) {
+                    context.AddToOutput(this, new EscCode(29, 86, function, 0));
+                }
+                else {
+
+                    context.AddToOutput(this, new EscCode(29, 86, function));
+                }
             }
         }
     }

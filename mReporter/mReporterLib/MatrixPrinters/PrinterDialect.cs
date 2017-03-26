@@ -138,6 +138,25 @@ namespace mReporterLib
             return null;
         }
 
+        public override EscCode FontType(FontType type)
+        {
+            return new EscCode(27, 77, (byte)type);
+        }
+
+        static readonly EscCodePair _printStyleDoubleHeight = new EscCodePair(new EscCode(29, 33, 1), new EscCode(27, 33, 0));
+        static readonly EscCodePair _printStyleDoubleWidth = new EscCodePair(new EscCode(29, 33, 16), new EscCode(29, 33, 0));
+
+        public override EscCodePair PrintStyle(PrintStyle style)
+        {
+            switch (style) {
+                case mReporterLib.PrintStyle.DoubleHeight: return _printStyleDoubleHeight;
+                case mReporterLib.PrintStyle.DoubleWidth: return _printStyleDoubleWidth;
+                default: break;
+            }
+            return null;
+        }
+
+
     }
 
     public class StarLineDialect : PrinterDialect

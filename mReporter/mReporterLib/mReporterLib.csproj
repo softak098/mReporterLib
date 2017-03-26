@@ -40,8 +40,10 @@
     <Compile Include="LabelPrinters\Instructions.cs" />
     <Compile Include="MatrixPrinters\ExtraItems\Barcode.cs" />
     <Compile Include="MatrixPrinters\ExtraItems\CodePage.cs" />
+    <Compile Include="MatrixPrinters\ExtraItems\CustomCode.cs" />
     <Compile Include="MatrixPrinters\ExtraItems\CutPaper.cs" />
     <Compile Include="MatrixPrinters\ExtraItems\EmptySpace.cs" />
+    <Compile Include="MatrixPrinters\ExtraItems\FreeText.cs" />
     <Compile Include="MatrixPrinters\ExtraItems\Image.cs" />
     <Compile Include="MatrixPrinters\ExtraItems\LineSpacing.cs" />
     <Compile Include="MatrixPrinters\ExtraItems\NVLogo.cs" />

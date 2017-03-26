@@ -18,8 +18,9 @@ namespace mReporterTest
         public void EetRevenueTest()
         {
 
-            Report rpt = new Report(new ESCPosDialect(PrinterModel.EpsonPosGeneric));
-            rpt.PageHeight = 0;
+            Report rpt = new Report(new ESCPosDialect(PrinterModel.EpsonPosGeneric)) {
+                PageHeight = 0
+            };
 
             rpt.AddItem(new Line(ReportItemType.ReportFooter) {
 
@@ -56,6 +57,13 @@ namespace mReporterTest
 
             });
 
+            /*
+            rpt.AddItem(new FreeText("demo <u>underlined and<b>bold</b></u>" +
+                "<codepage:20>demo11</codepage><barcode:ean13>123456789012</barcode>"));
+                */
+
+
+            rpt.AddItem(new CutPaper(CutPaperMode.FeedAndPartial));
             // finaly render and build output
             var rContext = rpt.Render();
             var pBuilder = rpt.BuildPages(rContext);
@@ -73,8 +81,8 @@ namespace mReporterTest
             */
 
 
-            //var data = pBuilder.OutputStream.ToArray();
-            //RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
+            var data = pBuilder.OutputStream.ToArray();
+            RawPrinterHelper.SendToPrinter(@"EPSON TM-T20II Receipt", data);
         }
 
 
@@ -82,11 +90,11 @@ namespace mReporterTest
         public void ReportTest()
         {
 
-            Report rpt = new Report(new StarLineDialect());
+            Report rpt = new Report(new ESCPosDialect(PrinterModel.EpsonPosGeneric));
             rpt.PageHeight = 0;
             rpt.TextEncoding = Encoding.GetEncoding(852);
 
-            rpt.AddItem(new CodePage(5));
+            rpt.AddItem(new CodePage(18));
             //rpt.AddItem(new LineSpacing(0));
 
             //rpt.AddItem(new NVLogo());
@@ -210,12 +218,10 @@ namespace mReporterTest
             });
             rpt.AddItem(new Line(ReportItemType.Footer) {
                 Template = "1234567890",
-                FontType = FontType.B,
                 PrintStyle= PrintStyle.DoubleWidth
             });
             rpt.AddItem(new Line(ReportItemType.Footer) {
                 Template = "12345678901234567890",
-                FontType = FontType.OCR,
                 PrintStyle= PrintStyle.DoubleHeight
             });
 
@@ -232,8 +238,10 @@ namespace mReporterTest
                 Template = "Back in text mode....",
             });
 
+            rpt.AddItem(new CustomCode(new EscCode(29,98,1,29, 33, 65), new EscCode((byte)'Q',10)));
+
             //rpt.AddItem(new EmptySpace(EmptySpaceType.Line, 4));
-            //rpt.AddItem(new CutPaper(CutPaperMode.FeedAndFull));
+            rpt.AddItem(new CutPaper(CutPaperMode.FeedAndPartial));
 
             // finaly render and build output
             var rContext = rpt.Render();
@@ -247,7 +255,7 @@ namespace mReporterTest
 
 
             var data = pBuilder.OutputStream.ToArray();
-            RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", data);
+            RawPrinterHelper.SendToPrinter(@"EPSON TM-T20II Receipt", data);
 
 
             /*
