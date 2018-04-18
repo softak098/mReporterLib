@@ -103,7 +103,7 @@ namespace mReporterTest
             rpt.AddItem(new Line(ReportItemType.ReportHeader) {
 
                 Template = "Hlavička stránky [1]",
-                Alignment = Align.Left
+                Alignment = Align.Right
 
             });
 
@@ -177,7 +177,7 @@ namespace mReporterTest
             var barcodeItem = new Barcode() {
                 BarcodeType = BarcodeType.ITF,
                 Data = "43657621",
-                Width = 7,
+                //Width = 7,
                 //HriPosition= BarcodeHriPosition.Above
             };
             rpt.AddItem(barcodeItem);
@@ -228,8 +228,10 @@ namespace mReporterTest
 
             rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN13, Data = "5032037076982", HriPosition = BarcodeHriPosition.Bellow });
             rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN8, Data = "5032370" });
+            rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.CODE128, Data = "{BAPK11-23", HriPosition= BarcodeHriPosition.AboveAndBellow
+            , Width=2});
 
-            rpt.AddItem(new NVLogo(3, NVLogoSize.Normal) { LogoAlign = Align.Right });
+            rpt.AddItem(new NVLogo(2, NVLogoSize.Normal) { LogoAlign = Align.Right });
 
             //rpt.AddItem(new Image(@"E:\IMAGES\_vyrd12_54tropico.jpg"));
 
@@ -238,9 +240,9 @@ namespace mReporterTest
                 Template = "Back in text mode....",
             });
 
-            rpt.AddItem(new CustomCode(new EscCode(29,98,1,29, 33, 65), new EscCode((byte)'Q',10)));
+            //rpt.AddItem(new CustomCode(new EscCode(29,98,1,29, 33, 65), new EscCode((byte)'Q',10)));
 
-            //rpt.AddItem(new EmptySpace(EmptySpaceType.Line, 4));
+            rpt.AddItem(new EmptySpace(EmptySpaceType.Line, 2));
             rpt.AddItem(new CutPaper(CutPaperMode.FeedAndPartial));
 
             // finaly render and build output
@@ -253,9 +255,8 @@ namespace mReporterTest
 
             }
 
-
             var data = pBuilder.OutputStream.ToArray();
-            RawPrinterHelper.SendToPrinter(@"EPSON TM-T20II Receipt", data);
+            RawPrinterHelper.SendToPrinter(@"TM-T20", data);
 
 
             /*

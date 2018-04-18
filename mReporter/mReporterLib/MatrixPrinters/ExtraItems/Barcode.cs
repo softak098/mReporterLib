@@ -85,6 +85,7 @@ namespace mReporterLib
                 context.AddToOutput(this, new EscCode(29, 119, (byte)Math.Min(Width, 6)));
                 // and code itself
                 context.AddToOutput(this, new EscCode(29, 107, (byte)BarcodeType, (byte)_data.Length));
+
                 context.AddToOutput(this, new TextElement(_data));
             }
         }
@@ -92,13 +93,11 @@ namespace mReporterLib
         string _data = null;
         public override object Data
         {
-            get
-            {
+            get {
                 return _data;
             }
 
-            set
-            {
+            set {
                 _data = null;
                 string d = Convert.ToString(value);
 
@@ -143,7 +142,7 @@ namespace mReporterLib
         static Lazy<Regex> CODE39 = new Lazy<Regex>(() => new Regex(@"^([0-9A-Z \$\%\+\-\.\/]+|\*[0-9A-Z \$\%\+\-\.\/]+\*)$", RegexOptions.Compiled));
         static Lazy<Regex> ITF = new Lazy<Regex>(() => new Regex("^([0-9]{2})+$", RegexOptions.Compiled));
         static Lazy<Regex> CODABAR = new Lazy<Regex>(() => new Regex(@"^[A-Da-d][0-9\$\+\-\.\/\:]+[A-Da-d]$", RegexOptions.Compiled));
-        static Lazy<Regex> CODE93 = new Lazy<Regex>(() => new Regex(@"^[\\x00-\\x7F]+", RegexOptions.Compiled));
-        static Lazy<Regex> CODE128 = new Lazy<Regex>(() => new Regex(@"^\{[A-C][\\x00-\\x7F]+", RegexOptions.Compiled));
+        static Lazy<Regex> CODE93 = new Lazy<Regex>(() => new Regex(@"^[\x00-\x7F]+", RegexOptions.Compiled));
+        static Lazy<Regex> CODE128 = new Lazy<Regex>(() => new Regex(@"^\{[A-C][\x00-\x7F]+", RegexOptions.Compiled));
     }
 }

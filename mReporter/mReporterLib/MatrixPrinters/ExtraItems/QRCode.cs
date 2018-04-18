@@ -33,7 +33,7 @@ namespace mReporterLib
         public override void Render(RenderContext context)
         {
             /*
-            if (_data == null) return null;
+            if (_data == null) return;
 
             StringBuilder sb = new StringBuilder();
 
