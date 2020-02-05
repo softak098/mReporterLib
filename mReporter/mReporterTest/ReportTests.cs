@@ -331,11 +331,13 @@ namespace mReporterTest
             iData.CreateData();
 
 
-            Report rpt = new Report(new ESCPDialect(PrinterModel.EpsonGeneric));
-            rpt.PageHeight = 66;
-            rpt.TextEncoding = Encoding.GetEncoding(852);
+            Report rpt = new Report(new ESCPDialect(
+                PrinterModel.EpsonGeneric,
+                new EscCode(27, 116, 18)
+                ));
 
-            rpt.AddItem(new CodePage(18));
+            rpt.PageHeight = 65;
+            rpt.TextEncoding = Encoding.GetEncoding(852);
 
             rpt.AddItem(new Line(ReportItemType.ReportHeader) {
                 PrintStyle = PrintStyle.Elite,
@@ -369,6 +371,7 @@ namespace mReporterTest
                     if (e.Index == 0) {
                         e.Result.Value = "Document: " + iData.Header.DocumentNr;
                         e.Result.Alignment = Align.Right;
+                        e.Result.Style = FontStyle.Emphasized;
                     }
                     else {
 
@@ -383,7 +386,7 @@ namespace mReporterTest
 
             rpt.AddItem(new Line(ReportItemType.PageFooter) {
 
-                Template = "\n--------------------------------------------------------------------------------\n(c) 2020 Our Company name"
+                Template = "\r\n--------------------------------------------------------------------------------\r\n(c) 2020 Our Company name"
 
             });
 
@@ -413,7 +416,7 @@ namespace mReporterTest
                     var d = e.Data as InvoiceDetail;
 
                     if (e.Index == 0) {
-                        //e.Result.WordWrap = true;
+                        e.Result.WordWrap = true;
                         //                        e.Result.Value = @"Kupující má právo požádat prodávajícího o zpětný prodej vratných obalů (palety, rámy apod.) a prodávající je tak povinen za stejnou cenu vratné obaly koupit od kupujícího zpět za podmínky, že příslušné obaly budou vráceny prodávajícímu v neporušeném stavu  do 21 dnů od jejich původního obdržení kupujícím od prodávajícího.  
                         //Převzetí dopravcem:  OP/ŘP:                                Podpis:
 
@@ -426,7 +429,7 @@ namespace mReporterTest
 
                         //";
 
-                        e.Result.Value=string.Concat(d.Code, " ", d.Name, "\n", d.Description, "\n", d.Description, "\n", d.Description);
+                        e.Result.Value = string.Concat(d.Code, " ", d.Name, "\r\n", d.Description, "\r\n", d.Description, "\r\n", d.Description);
                     }
                     else if (e.Index == 1) {
 
@@ -489,14 +492,14 @@ namespace mReporterTest
             var rContext = rpt.Render();
             var pBuilder = rpt.BuildPages(rContext);
 
-            using (var fs = new FileStream(@"C:\TEMP\data_report.prn", FileMode.Create)) {
+            //using (var fs = new FileStream(@"C:\TEMP\data_report.prn", FileMode.Create)) {
 
-                pBuilder.OutputStream.WriteTo(fs);
+            //    pBuilder.OutputStream.WriteTo(fs);
 
-            }
+            //}
 
-            //byte[] printData = pBuilder.OutputStream.ToArray();
-            //RawPrinterHelper.SendToPrinter(@"OKI MC562(PCL)", printData);
+            byte[] printData = pBuilder.OutputStream.ToArray();
+            RawPrinterHelper.SendToPrinter(@"OKI MC562(PCL)", printData);
         }
 
         [TestMethod()]

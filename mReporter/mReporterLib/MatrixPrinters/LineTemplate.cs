@@ -109,14 +109,14 @@ namespace mReporterLib
         internal void Build(RenderContext context, LineElement lineBuilder, GetDataResult[] resultData)
         {
             Dictionary<int, List<string>> multilineValues = null;
-            Action<int, List<string>> _AddMultiline = (index, data) => {
 
+            void _AddMultiline(int index, List<string> data)
+            {
                 if (multilineValues == null) multilineValues = new Dictionary<int, List<string>>();
 
                 if (multilineValues.ContainsKey(index)) multilineValues[index].AddRange(data);
                 else multilineValues.Add(index, data);
-
-            };
+            }
 
             // first line
             for (int i = 0; i < _items.Count; i++) {

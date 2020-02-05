@@ -11,12 +11,10 @@ namespace mReporterLib
     {
         List<EscCode> _codes;
         List<OutputElement> _elements;
-        internal int LineHeight;
 
-        public OutputLineLine(int lineHeight = 1)
+        public OutputLineLine()
         {
             _elements = new List<OutputElement>();
-            LineHeight = lineHeight;
         }
 
         internal void Append(OutputElement element)

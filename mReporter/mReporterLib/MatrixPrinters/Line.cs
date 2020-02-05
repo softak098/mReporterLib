@@ -138,7 +138,7 @@ namespace mReporterLib
                 r[i] = GetDataResultInternal(i);
             }
 
-            LineElement oLine = new LineElement();
+            LineElement oLine = new LineElement(context);
             _lineTemplate.Build(context, oLine, r);
 
             context.AddToOutput(this, oLine);

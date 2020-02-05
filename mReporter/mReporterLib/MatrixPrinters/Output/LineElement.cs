@@ -18,11 +18,17 @@ namespace mReporterLib
         internal override int LineCount => _lines.Count;
 
         OutputLineLine _currentLine;
+        private readonly RenderContext _context;
 
         /// <summary>
         /// Controls if output builder inserts LF character after the line, Default=TRUE
         /// </summary>
         public bool AppendNewLine { get; set; } = true;
+
+        public LineElement(RenderContext context)
+        {
+            _context = context;
+        }
 
         internal void AppendLine()
         {
@@ -67,10 +73,8 @@ namespace mReporterLib
 
                 l.WriteTo(stream, textEncoding);
 
-                if (AppendNewLine) {
-                    stream.WriteByte(13);
-                    stream.WriteByte(10);
-                }
+                if (AppendNewLine)
+                    _context.Report.Dialect.NewLine.WriteTo(stream, textEncoding);
 
             });
         }
@@ -82,10 +86,8 @@ namespace mReporterLib
 
                 Lines[from].WriteTo(stream, textEncoding);
 
-                if (AppendNewLine) {
-                    stream.WriteByte(13);
-                    stream.WriteByte(10);
-                }
+                if (AppendNewLine)
+                    _context.Report.Dialect.NewLine.WriteTo(stream, textEncoding);
 
                 from++;
             }

@@ -39,25 +39,35 @@ namespace mReporterLib
 
         static readonly EscCode _lineFeed = new EscCode(10);
         static readonly EscCode _formFeed = new EscCode(12);
+        static readonly EscCode _cr = new EscCode(13);
+        static readonly EscCode _newLine = new EscCode(13, 10);
 
         public PrinterModel PrinterModel { get; set; }
+
+        List<EscCode> _extraResetCodes;
 
         public PrinterDialect(PrinterModel model)
         {
             PrinterModel = model;
+            _extraResetCodes = new List<EscCode>() { new EscCode(27, (byte)'@') };
         }
 
-        public PrinterDialect(PrinterModel model, EscCode[] extraResetCodes)
+        public PrinterDialect(PrinterModel model, params EscCode[] extraResetCodes) : this(model)
         {
-            PrinterModel = model;
+            if (extraResetCodes is null) {
+                throw new ArgumentNullException(nameof(extraResetCodes));
+            }
+
+            _extraResetCodes.AddRange(extraResetCodes);
         }
 
         public virtual EscCodePair FontStyle(FontStyle style) { return null; }
-
-        public virtual EscCode Reset() { return new EscCode(27, (byte)'@'); }
+        public virtual List<EscCode> Reset => _extraResetCodes;
 
         public virtual EscCode FormFeed => _formFeed;
         public virtual EscCode LineFeed => _lineFeed;
+        public virtual EscCode CarriageReturn => _cr;
+        public virtual EscCode NewLine => _newLine;
 
         public virtual EscCodePair PrintStyle(PrintStyle style) { return null; }
         public virtual EscCode Align(Align style)
@@ -81,40 +91,41 @@ namespace mReporterLib
 
     public class ESCPDialect : PrinterDialect
     {
+        static readonly EscCodePair _fontStyleEmphasized = new EscCodePair(new EscCode(27, 69), new EscCode(27, 70));
+        static readonly EscCodePair _fontStyleUnderline = new EscCodePair(new EscCode(27, 45, 49), new EscCode(27, 45, 48));
+        static readonly EscCodePair _fontStyleUnderlineDouble = new EscCodePair(new EscCode(27, 45, 2), new EscCode(27, 45, 0));
+        static readonly EscCodePair _fontStyleItalic = new EscCodePair(new EscCode(27, 52), new EscCode(27, 53));
+
+        static readonly EscCodePair _printStylePica = new EscCodePair(new EscCode(27, 80), null);
+        static readonly EscCodePair _printStyleElite = new EscCodePair(new EscCode(27, 77), null);
+        static readonly EscCodePair _printStyleCondensed = new EscCodePair(new EscCode(15), new EscCode(18));
 
         public ESCPDialect(PrinterModel model) : base(model)
         {
         }
+        public ESCPDialect(PrinterModel model, params EscCode[] extraResetCodes) : base(model, extraResetCodes) { }
+
 
         public override EscCodePair FontStyle(FontStyle style)
         {
-            /*
             switch (style) {
                 case mReporterLib.FontStyle.Emphasized: return _fontStyleEmphasized;
-                case mReporterLib.FontStyle.Underline:return _fontStyleUnderline;
+                case mReporterLib.FontStyle.Underline: return _fontStyleUnderline;
                 case mReporterLib.FontStyle.UnderlineDouble: return _fontStyleUnderlineDouble;
-                case mReporterLib.FontStyle.Italic:
-                    return new EscCodePair("\x1B4", "\x1B5");
-                default:
-                    break;
+                case mReporterLib.FontStyle.Italic: return _fontStyleItalic;
+                default: break;
             }
-            */
             return null;
         }
 
         public override EscCodePair PrintStyle(PrintStyle style)
         {
-            /*
             switch (style) {
-                case mReporterLib.PrintStyle.Pica: return new EscCodePair("\x1BP", null);
-                case mReporterLib.PrintStyle.Elite:
-                    return new EscCodePair("\x1BM", null);
-                case mReporterLib.PrintStyle.Condensed:
-                    return new EscCodePair("\x0F", "\x12");
-                default:
-                    break;
+                case mReporterLib.PrintStyle.Pica: return _printStylePica;
+                case mReporterLib.PrintStyle.Elite: return _printStyleElite;
+                case mReporterLib.PrintStyle.Condensed: return _printStyleCondensed;
+                default: break;
             }
-            */
             return null;
         }
     }

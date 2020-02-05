@@ -112,7 +112,7 @@ namespace mReporterLib
         /// </summary>
         internal void Reset()
         {
-            _report.Dialect.Reset().WriteTo(_outputStream, _textEncoding);
+            _report.Dialect.Reset.ForEach(ec => ec.WriteTo(_outputStream, _textEncoding));
         }
 
         void AddNewPage(RenderContext context, bool addNextLines)
@@ -123,9 +123,7 @@ namespace mReporterLib
             if (footerLine != null) {
                 // add several empty lines to place footer on bottom of page
                 for (int i = 0; i < PageHeight - footerLines - CurrentLine + 1; i++) {
-
-                    context.Report.Dialect.LineFeed.WriteTo(_outputStream, null);
-
+                    context.Report.Dialect.NewLine.WriteTo(_outputStream, null);
                 }
                 // place footer line(s) to output
                 AddToOutput(footerLine, 0); // !!! - do not replace with BuildInternal

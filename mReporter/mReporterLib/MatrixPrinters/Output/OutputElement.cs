@@ -22,10 +22,7 @@ namespace mReporterLib
         /// </summary>
         internal virtual int LineCount => 0;
 
-        public virtual void WriteTo(Stream stream, Encoding textEncoding)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract void WriteTo(Stream stream, Encoding textEncoding);
     }
 
 
