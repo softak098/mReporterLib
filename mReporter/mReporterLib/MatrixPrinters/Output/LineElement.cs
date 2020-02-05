@@ -12,32 +12,17 @@ namespace mReporterLib
     /// </summary>
     public class LineElement : OutputElement
     {
-
         List<OutputLineLine> _lines;
-        internal List<OutputLineLine> Lines
-        {
-            get
-            {
-                if (_lines == null) _lines = new List<OutputLineLine>();
-                return _lines;
-            }
-        }
+
+        internal List<OutputLineLine> Lines => _lines ?? (_lines = new List<OutputLineLine>());
+        internal override int LineCount => _lines.Count;
 
         OutputLineLine _currentLine;
-
 
         /// <summary>
         /// Controls if output builder inserts LF character after the line, Default=TRUE
         /// </summary>
         public bool AppendNewLine { get; set; } = true;
-
-        internal override int LineCount
-        {
-            get
-            {
-                return _lines.Count;
-            }
-        }
 
         internal void AppendLine()
         {
@@ -81,14 +66,29 @@ namespace mReporterLib
             Lines.ForEach(l => {
 
                 l.WriteTo(stream, textEncoding);
-                if (AppendNewLine) stream.WriteByte(10);
+
+                if (AppendNewLine) {
+                    stream.WriteByte(13);
+                    stream.WriteByte(10);
+                }
 
             });
         }
 
         public void WriteTo(Stream stream, Encoding textEncoding, int from, int count)
         {
-            throw new NotImplementedException();
+            count = from + count;
+            while (from < LineCount && from < count) {
+
+                Lines[from].WriteTo(stream, textEncoding);
+
+                if (AppendNewLine) {
+                    stream.WriteByte(13);
+                    stream.WriteByte(10);
+                }
+
+                from++;
+            }
         }
 
 

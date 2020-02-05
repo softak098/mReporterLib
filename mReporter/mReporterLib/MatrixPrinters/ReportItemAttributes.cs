@@ -10,12 +10,14 @@ namespace mReporterLib
 
     public enum FontStyle { Normal, Emphasized, Underline, UnderlineDouble, Upperline, Italic, Inverse }
 
-    public enum PrintStyle
+    [Flags]
+    public enum PrintStyle : int
     {
         /// <summary>
         /// Do not set line print style, leave setting from lines before
         /// </summary>
-        AsBefore, Pica, Elite, Condensed, Pitch12, Pitch15, Pitch16, DoubleHeight, DoubleWidth
+        AsBefore = 0,
+        Pica = 1, Elite = 2, Condensed = 4, Pitch12 = 8, Pitch15 = 16, Pitch16 = 32, DoubleHeight = 64, DoubleWidth = 128
     }
 
     public enum FontType : byte

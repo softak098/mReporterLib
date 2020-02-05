@@ -23,8 +23,13 @@ namespace mReporterLib
 
             }
             else {
+                if (context.Report.Dialect.PrinterModel == PrinterModel.EpsonGeneric) {
+                    context.AddToOutput(this, new EscCode(27, 82, _codePage));
 
-                context.AddToOutput(this, new EscCode(27, 116, _codePage));
+                }
+                else {
+                    context.AddToOutput(this, new EscCode(27, 116, _codePage));
+                }
 
             }
         }

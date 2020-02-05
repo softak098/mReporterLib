@@ -25,6 +25,11 @@ namespace mReporterLib
         {
             if (!endSequence) WriteTo(stream, textEncoding);
         }
+
+        public static EscCode operator +(EscCode left, EscCode right)
+        {
+            return new EscCode(left._code.Concat(right._code).ToArray());
+        }
     }
 
 

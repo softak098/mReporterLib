@@ -60,12 +60,10 @@ namespace mReporterLib
         string _template;
         public string Template
         {
-            get
-            {
+            get {
                 return _template;
             }
-            set
-            {
+            set {
                 _template = value;
                 _lineTemplate = new LineTemplate(this, value);
             }
@@ -143,7 +141,7 @@ namespace mReporterLib
             LineElement oLine = new LineElement();
             _lineTemplate.Build(context, oLine, r);
 
-            context.AddToOutput(this,oLine);
+            context.AddToOutput(this, oLine);
 
             if (this.Items != null) {
                 // process child items

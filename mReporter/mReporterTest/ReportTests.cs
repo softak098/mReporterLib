@@ -218,18 +218,28 @@ namespace mReporterTest
             });
             rpt.AddItem(new Line(ReportItemType.Footer) {
                 Template = "1234567890",
-                PrintStyle= PrintStyle.DoubleWidth
+                PrintStyle = PrintStyle.DoubleWidth
             });
             rpt.AddItem(new Line(ReportItemType.Footer) {
                 Template = "12345678901234567890",
-                PrintStyle= PrintStyle.DoubleHeight
+                PrintStyle = PrintStyle.DoubleHeight
+            });
+            rpt.AddItem(new Line(ReportItemType.Footer) {
+                Template = "DOUBLE-EVERY",
+                PrintStyle = PrintStyle.DoubleHeight | PrintStyle.DoubleWidth
             });
 
 
             rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN13, Data = "5032037076982", HriPosition = BarcodeHriPosition.Bellow });
             rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.EAN8, Data = "5032370" });
-            rpt.AddItem(new Barcode() { BarcodeType = BarcodeType.CODE128, Data = "{BAPK11-23", HriPosition= BarcodeHriPosition.AboveAndBellow
-            , Width=2});
+
+            rpt.AddItem(new EmptySpace(EmptySpaceType.Dot, 15));
+            rpt.AddItem(new Barcode() {
+                BarcodeType = BarcodeType.CODE128,
+                Data = "{BAPK11-23",
+                HriPosition = BarcodeHriPosition.AboveAndBellow,
+                Width = 2
+            });
 
             rpt.AddItem(new NVLogo(2, NVLogoSize.Normal) { LogoAlign = Align.Right });
 
@@ -323,6 +333,9 @@ namespace mReporterTest
 
             Report rpt = new Report(new ESCPDialect(PrinterModel.EpsonGeneric));
             rpt.PageHeight = 66;
+            rpt.TextEncoding = Encoding.GetEncoding(852);
+
+            rpt.AddItem(new CodePage(18));
 
             rpt.AddItem(new Line(ReportItemType.ReportHeader) {
                 PrintStyle = PrintStyle.Elite,
@@ -350,8 +363,7 @@ namespace mReporterTest
 
             rpt.AddItem(new Line(ReportItemType.PageHeader) {
 
-                Template = @"_______________________________________________________________________________
-_______________________________________________________________________________",
+                Template = "_______________________________________________________________________________\n_______________________________________________________________________________",
                 GetData = (e) => {
 
                     if (e.Index == 0) {
@@ -371,7 +383,7 @@ _______________________________________________________________________________"
 
             rpt.AddItem(new Line(ReportItemType.PageFooter) {
 
-                Template = "\n--------------------------------------------------------------------------------\n(c) 2016 Our Company name"
+                Template = "\n--------------------------------------------------------------------------------\n(c) 2020 Our Company name"
 
             });
 
@@ -396,26 +408,25 @@ _______________________________________________________________________________"
             Line detailGroupDetail;
             detailGroup.AddItem(detailGroupDetail = new Line(ReportItemType.Detail) {
                 PageBreakInside = false,
-                Template = "_______________________________________________________________ ___________ ____",
+                Template = "_______________________________________________________________ __________  ____",
                 GetData = (e) => {
                     var d = e.Data as InvoiceDetail;
 
                     if (e.Index == 0) {
-                        e.Result.WordWrap = true;
-                        e.Result.Value = @"Kupující má právo požádat prodávajícího o zpětný prodej vratných obalů (palety, rámy apod.) a prodávající je tak povinen za stejnou cenu vratné obaly koupit od kupujícího zpět za podmínky, že příslušné obaly budou vráceny prodávajícímu v neporušeném stavu  do 21 dnů od jejich původního obdržení kupujícím od prodávajícího.  
-Převzetí dopravcem:  OP/ŘP:                                Podpis:
+                        //e.Result.WordWrap = true;
+                        //                        e.Result.Value = @"Kupující má právo požádat prodávajícího o zpětný prodej vratných obalů (palety, rámy apod.) a prodávající je tak povinen za stejnou cenu vratné obaly koupit od kupujícího zpět za podmínky, že příslušné obaly budou vráceny prodávajícímu v neporušeném stavu  do 21 dnů od jejich původního obdržení kupujícím od prodávajícího.  
+                        //Převzetí dopravcem:  OP/ŘP:                                Podpis:
 
 
-Převzetí odběratelem: Převzaté zboží odpovídá množství, kvalitě i ostatním podmínkám uvedeným v kupní smlouvě.
-Jméno:                               Podpis:                                    Datum:
-          
+                        //Převzetí odběratelem: Převzaté zboží odpovídá množství, kvalitě i ostatním podmínkám uvedeným v kupní smlouvě.
+                        //Jméno:                               Podpis:                                    Datum:
 
 
 
-";
 
+                        //";
 
-                        //string.Concat(d.Code, " ", d.Name, "\n", d.Description, "\n", d.Description, "\n", d.Description);
+                        e.Result.Value=string.Concat(d.Code, " ", d.Name, "\n", d.Description, "\n", d.Description, "\n", d.Description);
                     }
                     else if (e.Index == 1) {
 
@@ -425,12 +436,13 @@ Jméno:                               Podpis:                                   
                     }
                     else if (e.Index == 2) {
                         e.Result.Value = d.Unit;
+                        //e.Result.Alignment = Align.Right;
                     }
                 }
             });
 
             detailGroup.AddItem(new Line(ReportItemType.Detail) {
-                Template = "" // empty line between other detail lines
+                Template = " " // empty line between other detail lines
             });
 
             var batchGroup = new Group<Batch>();
@@ -447,13 +459,13 @@ Jméno:                               Podpis:                                   
 
             batchGroup.AddItem(new Line(ReportItemType.Detail) {
 
-                Template = "Batch: ______________________________________ _________ ____",
+                Template = "        Batch: ______________________________________ _________ ____",
                 GetData = (e) => {
                     var d = e.Data as Batch;
 
                     if (e.Index == 0) {
-                        //e.Result.Value = string.Concat(d.Name, " (", d.Code, ")");
-                        e.Result.Value = new string('X', 100);
+                        e.Result.Value = string.Concat(d.Name, " (", d.Code, ")");
+                        //e.Result.Value = new string('X', 100);
                         e.Result.WordWrap = true;
                     }
                     else if (e.Index == 1) {
@@ -477,11 +489,14 @@ Jméno:                               Podpis:                                   
             var rContext = rpt.Render();
             var pBuilder = rpt.BuildPages(rContext);
 
-            /*
-            byte[] printData = Encoding.ASCII.GetBytes(pBuilder.Output);
-            RawPrinterHelper.SendToPrinter(@"Star TSP600 Cutter (TSP643)", printData);
-            */
+            using (var fs = new FileStream(@"C:\TEMP\data_report.prn", FileMode.Create)) {
 
+                pBuilder.OutputStream.WriteTo(fs);
+
+            }
+
+            //byte[] printData = pBuilder.OutputStream.ToArray();
+            //RawPrinterHelper.SendToPrinter(@"OKI MC562(PCL)", printData);
         }
 
         [TestMethod()]

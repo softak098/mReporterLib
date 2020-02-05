@@ -47,6 +47,11 @@ namespace mReporterLib
             PrinterModel = model;
         }
 
+        public PrinterDialect(PrinterModel model, EscCode[] extraResetCodes)
+        {
+            PrinterModel = model;
+        }
+
         public virtual EscCodePair FontStyle(FontStyle style) { return null; }
 
         public virtual EscCode Reset() { return new EscCode(27, (byte)'@'); }
@@ -143,17 +148,22 @@ namespace mReporterLib
             return new EscCode(27, 77, (byte)type);
         }
 
-        static readonly EscCodePair _printStyleDoubleHeight = new EscCodePair(new EscCode(29, 33, 1), new EscCode(27, 33, 0));
+        static readonly EscCodePair _printStyleDoubleHeight = new EscCodePair(new EscCode(29, 33, 1), new EscCode(29, 33, 0));
         static readonly EscCodePair _printStyleDoubleWidth = new EscCodePair(new EscCode(29, 33, 16), new EscCode(29, 33, 0));
 
         public override EscCodePair PrintStyle(PrintStyle style)
         {
-            switch (style) {
-                case mReporterLib.PrintStyle.DoubleHeight: return _printStyleDoubleHeight;
-                case mReporterLib.PrintStyle.DoubleWidth: return _printStyleDoubleWidth;
-                default: break;
+            EscCodePair result = null;
+            if (style.HasFlag(mReporterLib.PrintStyle.DoubleHeight)) {
+                result = _printStyleDoubleHeight;
             }
-            return null;
+            if (style.HasFlag(mReporterLib.PrintStyle.DoubleWidth)) {
+                if (result == null) result = _printStyleDoubleWidth;
+                else {
+                    result = new EscCodePair(new EscCode(29, 33, 17), new EscCode(29, 33, 0));
+                }
+            }
+            return result;
         }
 
 

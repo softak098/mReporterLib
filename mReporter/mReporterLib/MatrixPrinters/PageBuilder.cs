@@ -62,8 +62,6 @@ namespace mReporterLib
             }
         }
 
-
-
         void BuildLines(RenderContext context, LineElement el)
         {
             int linesToBuild = el.LineCount;
@@ -242,7 +240,7 @@ namespace mReporterLib
             _outputStream.Seek(0, SeekOrigin.End);
         }
 
-        void AddToOutput(LineElement line, int from, int count = int.MaxValue, bool addNewLine = true)
+        void AddToOutput(LineElement line, int from, int count = int.MaxValue)
         {
             count = Math.Min(count, line.LineCount - from);
             line.WriteTo(_outputStream, _textEncoding, from, count);

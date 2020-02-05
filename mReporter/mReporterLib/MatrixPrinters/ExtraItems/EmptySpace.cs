@@ -24,6 +24,9 @@ namespace mReporterLib
 
         public override void Render(RenderContext context)
         {
+            if (context.Report.PageHeight > 0)
+                throw new ArgumentOutOfRangeException(nameof(context.Report.PageHeight), "EmptySpace item can not be used for paged report.");
+
             if (context.Report.Dialect is StarLineDialect) {
 
                 if (_spaceType == EmptySpaceType.Line)

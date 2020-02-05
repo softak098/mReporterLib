@@ -38,20 +38,19 @@ namespace mReporterTest.Data
         {
             Name = "Product " + i;
             Code = "X2E" + i;
-            Description = "this is a description of product " + i;
+            Description = "maličký popis zboží " + i;
             Quantity = i * 1.87;
             Unit = "m";
 
             Batches = new List<Batch>();
-            for (int j = 0; j < 5; j++) {
+            for (int j = 1; j < 6; j++) {
                 var b = new Batch() {
-                    Name=(i*66724531).ToString(),
-                    Code=i.ToString(),
-                     Quantity=i*1.32,
-                     Unit="#"
+                    Name = (i * 66724531).ToString(),
+                    Code = i.ToString(),
+                    Quantity = i * new Random(i).NextDouble(),
+                    Unit = "#"
                 };
                 Batches.Add(b);
-
             }
         }
     }
