@@ -333,7 +333,7 @@ namespace mReporterTest
 
             Report rpt = new Report(new ESCPDialect(
                 PrinterModel.EpsonGeneric,
-                new EscCode(27, 116, 18)
+                new EscCode(27, 116, 18) //, new EscCode(27, 120, 48)
                 ));
 
             rpt.PageHeight = 65;
